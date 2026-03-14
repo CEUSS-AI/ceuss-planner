@@ -226,7 +226,7 @@ let S={
   data:{
     areas:[{id:'area0',name:'CEUSS',color:'#6D28D9'}],
     areaData:{area0:{teamMembers:[],months:{}}},
-    settings:{sheetsUrl:'',directorName:'Dirección'}
+    settings:{sheetsUrl:'https://script.google.com/macros/s/AKfycbzccC6VmMK-mwYPwoZ3gvpmvahjQdfRw87g3CtkD9e6rZ43jLodHKjwbGX_tFHhxD--/exec',directorName:'Dirección'}
   }
 };
 
@@ -285,7 +285,7 @@ let saveTimer=null;
 function save(){clearTimeout(saveTimer);saveTimer=setTimeout(persistSave,600);}
 async function persistSave(){
   try{localStorage.setItem(SK,JSON.stringify(S.data));}catch(e){}
-  const url=S.data.settings?.sheetsUrl;
+  const url=S.data.settings?.sheetsUrl||SHEETS_URL;
   if(!url)return;
   S.syncState='syncing';updateSyncUI();
   try{
@@ -295,9 +295,41 @@ async function persistSave(){
   }catch(e){S.syncState='error';}
   updateSyncUI();
 }
+function resetData(){
+  if(!confirm('¿Estás segura? Esto borrará todos los datos guardados en este navegador y cargará la configuración base con las 4 áreas, 8 integrantes y KPIs. No se puede deshacer.')) return;
+  // Limpiar todo el localStorage
+  localStorage.removeItem('ceuss_planner_v5');
+  localStorage.removeItem('ceuss_planner_v4');
+  localStorage.removeItem('ceuss_planner_v3');
+  localStorage.removeItem('ceuss_version');
+  // Reiniciar el estado en memoria
+  S.data = {
+    areas: [],
+    areaData: {},
+    settings: {sheetsUrl: S.data.settings?.sheetsUrl || '', directorName: 'Dirección'}
+  };
+  closeModal();
+  init();
+  showToast('Datos restablecidos correctamente');
+}
+
+var APP_VERSION = '2026-03-v3';
+
+var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzccC6VmMK-mwYPwoZ3gvpmvahjQdfRw87g3CtkD9e6rZ43jLodHKjwbGX_tFHhxD--/exec';
+
 async function loadData(){
+  // Si la version guardada es distinta, limpia datos viejos automaticamente
+  var savedVersion = localStorage.getItem('ceuss_version');
+  if(savedVersion !== APP_VERSION){
+    localStorage.removeItem('ceuss_planner_v5');
+    localStorage.removeItem('ceuss_planner_v4');
+    localStorage.removeItem('ceuss_planner_v3');
+    localStorage.setItem('ceuss_version', APP_VERSION);
+  }
   try{const v=localStorage.getItem(SK);if(v){const p=JSON.parse(v);if(p&&p.areas)S.data=p;}}catch(e){}
-  const url=S.data.settings?.sheetsUrl;
+  const url=S.data.settings?.sheetsUrl||SHEETS_URL;
+  if(!S.data.settings)S.data.settings={};
+  S.data.settings.sheetsUrl=url;
   if(!url){S.area=S.data.areas[0]?.id||'area0';return;}
   S.syncState='syncing';updateSyncUI();
   try{
@@ -957,10 +989,20 @@ function buildModal(){
     body+=`<div class="modal-foot"><span>${item?`<button class="btn btn-danger" data-action="delete-item" data-type="area" data-id="${item.id}">Eliminar área</button>`:''}</span><div style="display:flex;gap:8px"><button class="btn btn-secondary" data-action="close-modal">Cancelar</button><button class="btn btn-primary" data-action="save-area" data-id="${item?.id||''}">Guardar</button></div></div>`;
   }
   else if(type==='settings'){
-    const url=S.data.settings?.sheetsUrl||'';
+    const url=S.data.settings?.sheetsUrl||SHEETS_URL;
     body=`<div style="background:#F0FDF4;border:1px solid #A7F3D0;border-radius:8px;padding:11px 14px;margin-bottom:14px;font-size:12px;color:#065F46;line-height:1.6"><b>Google Sheets como backend:</b> Configura la URL de tu Google Apps Script para sincronizar datos entre personas del equipo. Sin URL, los datos se guardan solo en este navegador.</div>
     ${fl('URL del Apps Script (Google Sheets)',fi('f-sheets-url',url,'https://script.google.com/macros/s/.../exec'))}
-    <div style="background:#FFFBEB;border-radius:8px;padding:11px 14px;font-size:11px;color:#92400E;line-height:1.7"><b>Cómo configurar:</b><br>1. Abre el archivo <code>apps_script_backend.js</code> incluido<br>2. Crea un nuevo Google Apps Script en script.google.com<br>3. Pega el código, reemplaza SHEET_ID con el ID de tu Google Sheet<br>4. Despliega como Web App → Ejecutar como: Yo → Acceso: Cualquier usuario<br>5. Copia la URL del despliegue y pégala aquí</div>
+    <div style="background:#FFFBEB;border-radius:8px;padding:11px 14px;font-size:11px;color:#92400E;line-height:1.7;margin-bottom:14px"><b>Cómo configurar:</b><br>1. Abre el archivo <code>apps_script_backend.js</code> incluido<br>2. Crea un nuevo Google Apps Script en script.google.com<br>3. Pega el código, reemplaza SHEET_ID con el ID de tu Google Sheet<br>4. Despliega como Web App → Ejecutar como: Yo → Acceso: Cualquier usuario<br>5. Copia la URL del despliegue y pégala aquí</div>
+    <div style="border-top:1px solid #F1F5F9;padding-top:14px;margin-bottom:4px">
+      <div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">Zona de restablecimiento</div>
+      <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#DC2626;margin-bottom:3px">Restablecer datos</div>
+          <div style="font-size:11px;color:#EF4444;line-height:1.5">Borra todos los datos guardados y carga las áreas, integrantes y KPIs base.<br><b>No se puede deshacer.</b></div>
+        </div>
+        <button class="btn" data-action="reset-data" style="background:#DC2626;color:#fff;padding:8px 14px;font-size:12px;font-weight:700;border-radius:8px;white-space:nowrap;flex-shrink:0">Restablecer</button>
+      </div>
+    </div>
     <div class="modal-foot"><span></span><div style="display:flex;gap:8px"><button class="btn btn-secondary" data-action="close-modal">Cancelar</button><button class="btn btn-primary" data-action="save-settings">Guardar</button></div></div>`;
     title='Configuración';
   }
@@ -1141,6 +1183,7 @@ document.addEventListener('click',e=>{
   if(action==='save-member'){saveMember(id);return;}
   if(action==='save-area'){saveArea(id);return;}
   if(action==='save-settings'){saveSettings();return;}
+  if(action==='reset-data'){resetData();return;}
   if(action==='delete-item'){deleteItem(el.dataset.type,id);return;}
 });
 
@@ -1167,13 +1210,90 @@ document.addEventListener('change',e=>{
 // ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
+// Equipo base CEUSS
+var DEFAULT_MEMBERS = [
+  {name:'Daniela Correa', initial:'DC', role:'Jefa Extension Cultural', email:''},
+  {name:'Elisa',          initial:'EL', role:'Jefa Diseno',             email:''},
+  {name:'Constanza',      initial:'CO', role:'Jefa Ediciones',          email:''},
+  {name:'Jacinto',        initial:'JA', role:'',                        email:''},
+  {name:'Francisca',      initial:'FR', role:'',                        email:''},
+  {name:'Natalia',        initial:'NA', role:'',                        email:''},
+  {name:'Camila',         initial:'CA', role:'',                        email:''},
+  {name:'Ismini',         initial:'IS', role:'',                        email:''},
+];
+
+// KPIs estrategicos CEUSS 2026-2028
+var DEFAULT_KPIS = [
+  {name:'Presencia Publica - Menciones en Medios',
+   description:'Apariciones en medios generadas por CEUSS: columnas, entrevistas, cartas al editor',
+   current:0, target:12, unit:'menciones',
+   notes:'Meta trimestral. Linea base Q1 2026. Minimo 4 por mes.'},
+  {name:'Alcance Presencial - Asistentes a Eventos',
+   description:'Asistentes totales a eventos presenciales masivos del periodo',
+   current:0, target:200, unit:'asistentes',
+   notes:'2 eventos masivos por semestre. Meta minima de asistencia a definir antes de producir.'},
+  {name:'Alcance Digital - YouTube + Boletin',
+   description:'Reproducciones YouTube + aperturas del boletin mensual a colegios, medios y stakeholders',
+   current:0, target:1000, unit:'visualizaciones',
+   notes:'Canal YouTube con calendario fijo. Boletin mensual. Linea base Q1 2026.'},
+  {name:'Eficiencia - Piezas Digitales por Evento',
+   description:'Ratio de piezas de contenido digital generadas por cada charla o actividad grabada',
+   current:0, target:3, unit:'piezas/evento',
+   notes:'Meta minima: 3 piezas por evento grabado. 1 charla = minimo 3 piezas para redes.'},
+  {name:'Capital Relacional - Stakeholders Activos',
+   description:'Stakeholders con vinculo activo documentado + speakers de primer nivel convocados',
+   current:0, target:30, unit:'stakeholders',
+   notes:'Incluye colegios, speakers, medios y autoridades. Linea base Q1 2026.'},
+  {name:'Charlas Grabadas y Publicadas',
+   description:'Charlas con edicion profesional publicadas en YouTube en el periodo',
+   current:0, target:4, unit:'charlas',
+   notes:'Produccion externalizada. Meta: 1 charla publicada cada 2-3 semanas.'},
+  {name:'Colegios con Vinculo Documentado',
+   description:'Colegios con presencia USS activa: LIJ en plan lector, USS a tu colegio, Escuela de Padres',
+   current:0, target:10, unit:'colegios',
+   notes:'Pipeline indirecto para admision. Linea base Q1 2026.'},
+  {name:'Publicaciones Editoriales Distribuidas',
+   description:'Envios curados a medios, colegios, empresas y autoridades en el periodo',
+   current:0, target:4, unit:'envios',
+   notes:'Cada envio abre conversacion. Incluye libros fisicos, digitales y LIJ.'},
+];
+
+var DEFAULT_AREAS = [
+  {id:'ceuss',     name:'CEUSS',               color:'#6D28D9'},
+  {id:'extension', name:'Extension Cultural',   color:'#1D4ED8'},
+  {id:'diseno',    name:'Diseno',               color:'#065F46'},
+  {id:'ediciones', name:'Ediciones',            color:'#9F1239'},
+];
+
 async function init(){
   await loadData();
-  // Ensure area is valid
-  if(!S.data.areas||S.data.areas.length===0)S.data.areas=[{id:'area0',name:'CEUSS',color:'#6D28D9'}];
-  if(!S.data.areaData)S.data.areaData={};
-  S.data.areas.forEach(a=>{if(!S.data.areaData[a.id])S.data.areaData[a.id]={teamMembers:[],months:{}};});
-  S.area=S.data.areas[0].id;
+  // Si no hay datos guardados aun, cargamos la estructura base
+  var isFirstLoad = !S.data.areas || S.data.areas.length === 0;
+  if(isFirstLoad){
+    S.data.areas = DEFAULT_AREAS.map(function(a){ return Object.assign({},a); });
+  }
+  if(!S.data.areaData) S.data.areaData = {};
+  S.data.areas.forEach(function(a){
+    if(!S.data.areaData[a.id]) S.data.areaData[a.id] = {teamMembers:[], months:{}};
+    if(!S.data.areaData[a.id].teamMembers || S.data.areaData[a.id].teamMembers.length === 0){
+      S.data.areaData[a.id].teamMembers = DEFAULT_MEMBERS.map(function(m){
+        return {id:genId(), name:m.name, initial:m.initial, role:m.role, email:m.email};
+      });
+    }
+    // Cargar KPIs base en el mes actual si el area no tiene KPIs aun
+    var k = mkey();
+    if(!S.data.areaData[a.id].months) S.data.areaData[a.id].months = {};
+    if(!S.data.areaData[a.id].months[k]){
+      S.data.areaData[a.id].months[k] = {events:[],tasks:[],kpis:[],risks:[],milestones:[],decisions:[],notes:{objectives:'',achievements:'',learnings:'',pending:''}};
+    }
+    if(S.data.areaData[a.id].months[k].kpis.length === 0){
+      S.data.areaData[a.id].months[k].kpis = DEFAULT_KPIS.map(function(kpi){
+        return {id:genId(), name:kpi.name, description:kpi.description, current:kpi.current, target:kpi.target, unit:kpi.unit, notes:kpi.notes};
+      });
+    }
+  });
+  S.area = S.data.areas[0].id;
+  save();
   renderAll();
 }
 init();
