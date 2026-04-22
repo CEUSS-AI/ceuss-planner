@@ -1,1429 +1,1887 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Planificador CEUSS</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:'DM Sans',system-ui,sans-serif;font-size:14px;overflow:hidden;background:#EAECF0;color:#0F172A}
-::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:8px}
-button,input,select,textarea{font-family:inherit;font-size:inherit}
-a{color:inherit;text-decoration:none}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planificador CEUSS 2026-2028</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #1b2a4a;
+      --navy-mid: #243358;
+      --navy-light: #2e4070;
+      --amber: #e8a020;
+      --amber-light: #f5c060;
+      --amber-pale: #fffbeb;
+      --white: #ffffff;
+      --gray-50: #f8f9fb;
+      --gray-100: #f0f2f6;
+      --gray-200: #dde1ea;
+      --gray-400: #9aa3b5;
+      --gray-600: #5a6478;
+      --gray-800: #2d3548;
+      --red: #e03e3e;
+      --red-pale: #fff5f5;
+      --green: #2f9e5a;
+      --green-pale: #f0faf4;
+      --blue: #2d7dd2;
+      --blue-pale: #eff6ff;
+      --sidebar-w: 228px;
+    }
 
-/* Layout */
-#app{display:flex;height:100vh;overflow:hidden}
-#sidebar{width:230px;min-width:230px;background:#16213E;display:flex;flex-direction:column;overflow:hidden}
-#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-#topbar{background:#fff;border-bottom:1px solid #E2E8F0;padding:12px 24px;display:flex;align-items:center;gap:16px;flex-shrink:0}
-#content-area{flex:1;overflow-y:auto;padding:22px 24px}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Sidebar sections */
-.sb-brand{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.07)}
-.sb-areas{padding:10px 10px 6px;border-bottom:1px solid rgba(255,255,255,.07);max-height:170px;overflow-y:auto}
-.sb-month{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between}
-.sb-nav{flex:1;overflow-y:auto;padding:8px 10px}
-.sb-footer{padding:10px 14px;border-top:1px solid rgba(255,255,255,.07)}
-.sb-section-label{font-size:9px;font-weight:700;color:rgba(255,255,255,.22);text-transform:uppercase;letter-spacing:1.2px;padding:8px 10px 4px}
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-800);
+      min-height: 100vh;
+    }
 
-/* Nav buttons */
-.nav-btn{display:flex;align-items:center;gap:9px;width:100%;padding:8px 11px;border-radius:9px;border:none;cursor:pointer;background:transparent;color:rgba(255,255,255,.45);font-size:13px;font-weight:500;margin-bottom:2px;text-align:left;transition:background .1s,color .1s;position:relative}
-.nav-btn:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.75)}
-.nav-btn.active{background:rgba(255,255,255,.14);color:#fff;font-weight:700}
-.nav-btn .nb-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0}
-.nav-btn .nb-label{flex:1}
-.nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    /* ===================== LOGIN ===================== */
+    #login-screen {
+      position: fixed; inset: 0;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 60%, #1a3560 100%);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+    }
 
-/* Area tabs */
-.area-tab{display:flex;align-items:center;gap:8px;width:100%;padding:7px 10px;border-radius:8px;border:none;cursor:pointer;background:transparent;color:rgba(255,255,255,.42);font-size:12px;font-weight:500;margin-bottom:2px;text-align:left;transition:all .1s}
-.area-tab:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.7)}
-.area-tab.active{background:rgba(255,255,255,.13);color:#fff;font-weight:700}
-.area-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .login-wrap {
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      padding: 24px;
+    }
 
-/* Month nav */
-.month-nav-btn{background:rgba(255,255,255,.1);border:none;color:#fff;width:26px;height:26px;border-radius:7px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .1s}
-.month-nav-btn:hover{background:rgba(255,255,255,.2)}
+    .login-badge {
+      display: inline-block;
+      background: rgba(232,160,32,0.15);
+      border: 1px solid rgba(232,160,32,0.3);
+      color: var(--amber-light);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
 
-/* Buttons */
-.btn{border:none;border-radius:8px;cursor:pointer;font-weight:600;transition:opacity .12s,background .12s;display:inline-flex;align-items:center;gap:6px}
-.btn:hover{opacity:.85}
-.btn-primary{background:#16213E;color:#fff;padding:8px 16px;font-size:13px}
-.btn-sm{padding:5px 12px;font-size:12px}
-.btn-secondary{background:#F1F5F9;color:#475569;padding:8px 16px;font-size:13px}
-.btn-secondary:hover{background:#E2E8F0;opacity:1}
-.btn-danger{background:#FEF2F2;color:#DC2626;padding:5px 12px;font-size:12px}
-.btn-danger:hover{background:#FEE2E2;opacity:1}
-.btn-ghost{background:transparent;color:#64748B;padding:5px 10px;font-size:12px;border:1px solid #E2E8F0}
-.btn-ghost:hover{background:#F8FAFC;opacity:1}
+    .login-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 36px;
+      color: white;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
 
-/* Cards */
-.card{background:#fff;border-radius:12px;border:1px solid #E2E8F0;padding:20px}
-.card-sm{background:#fff;border-radius:10px;border:1px solid #E2E8F0;padding:14px 16px}
-.card-stat{background:#F8FAFC;border-radius:10px;padding:14px 16px}
+    .login-sub {
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 40px;
+    }
 
-/* Forms */
-.field-group{margin-bottom:14px}
-.field-label{display:block;font-size:11px;font-weight:700;color:#64748B;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
-.form-input,.form-select,.form-textarea{width:100%;padding:8px 11px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;color:#0F172A;outline:none;background:#fff;transition:border-color .1s}
-.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:#16213E}
-.form-textarea{resize:vertical}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+    .login-box {
+      background: white;
+      border-radius: 20px;
+      padding: 36px 32px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.35);
+    }
 
-/* Badges */
-.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700;white-space:nowrap;line-height:1.4}
+    .login-box label {
+      display: block;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-600);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
 
-/* Progress */
-.progress-track{height:6px;background:#F1F5F9;border-radius:100px;overflow:hidden}
-.progress-fill{height:100%;border-radius:100px;transition:width .4s}
+    .login-box input[type="password"] {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid var(--gray-200);
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 20px;
+      letter-spacing: 6px;
+      text-align: center;
+      outline: none;
+      color: var(--navy);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      margin-bottom: 16px;
+    }
 
-/* Lists */
-.list-row{background:#fff;border-radius:10px;border:1px solid #E2E8F0;padding:12px 15px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:border-color .1s,box-shadow .1s;margin-bottom:8px}
-.list-row:hover{border-color:#C4CAD4;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+    .login-box input[type="password"]:focus {
+      border-color: var(--amber);
+      box-shadow: 0 0 0 3px rgba(232,160,32,0.12);
+    }
 
-/* Calendar */
-.cal-cell{min-height:82px;background:#FAFBFC;border-radius:6px;border:1px solid #F1F5F9;padding:5px 4px;cursor:pointer;transition:background .1s}
-.cal-cell:hover{background:#EFF2FF}
-.cal-cell.today{border:2px solid #16213E}
-.cal-chip{padding:2px 5px;border-radius:0 3px 3px 0;font-size:10px;font-weight:600;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;margin-bottom:2px;border-left:2px solid transparent}
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--navy);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
 
-/* Modal */
-.modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
-.modal-box{background:#fff;border-radius:16px;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;box-shadow:0 30px 70px rgba(0,0,0,.25)}
-.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;background:#fff;z-index:1}
-.modal-body{padding:20px 22px}
-.modal-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:18px;padding-top:16px;border-top:1px solid #F1F5F9}
-.status-toggle-btn{padding:6px 12px;border-radius:8px;border:1.5px solid #E2E8F0;background:#fff;color:#64748B;font-size:12px;font-weight:600;cursor:pointer;transition:all .12s}
+    .login-btn:hover { background: var(--navy-mid); }
+    .login-btn:active { transform: scale(0.99); }
 
-/* Empty state */
-.empty-box{background:#fff;border-radius:12px;border:2px dashed #E2E8F0;padding:48px 20px;text-align:center}
+    .login-error {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--red);
+      display: none;
+    }
 
-/* Search highlight */
-.hl{background:#FEF9C3;border-radius:2px;padding:0 2px}
+    /* ===================== APP ===================== */
+    #app { display: none; min-height: 100vh; }
 
-/* Sync indicator */
-.sync-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+    /* SIDEBAR */
+    .sidebar {
+      position: fixed; top: 0; left: 0;
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--navy);
+      display: flex; flex-direction: column;
+      z-index: 200;
+      overflow-y: auto;
+    }
 
-/* Toast */
-#toast{position:fixed;bottom:20px;right:20px;background:#16213E;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);opacity:0;transform:translateY(6px);transition:opacity .22s,transform .22s;z-index:3000;pointer-events:none}
-#toast.show{opacity:1;transform:translateY(0)}
+    .sidebar-header {
+      padding: 24px 20px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
 
-/* Topbar search */
-#search-input{border:1.5px solid #E2E8F0;border-radius:9px;padding:7px 12px 7px 32px;font-size:13px;outline:none;width:220px;transition:border-color .1s;background:#F8FAFC url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20' stroke='%2394A3B8' stroke-width='1.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z'/%3E%3C/svg%3E") 10px center/16px no-repeat}
-#search-input:focus{border-color:#16213E;background-color:#fff}
-</style>
+    .sidebar-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: white;
+      letter-spacing: -0.3px;
+    }
+
+    .sidebar-role {
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--amber);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-area {
+      margin-top: 3px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .sidebar-nav { flex: 1; padding: 10px 0; }
+
+    .nav-section {
+      padding: 14px 20px 4px;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 9px 20px;
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+      font-size: 13.5px;
+      border-left: 3px solid transparent;
+      transition: all 0.14s;
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.9);
+    }
+
+    .nav-item.active {
+      background: rgba(232,160,32,0.1);
+      border-left-color: var(--amber);
+      color: var(--amber-light);
+      font-weight: 500;
+    }
+
+    .nav-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+
+    .sidebar-footer {
+      padding: 14px 20px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .logout-btn {
+      width: 100%;
+      padding: 9px 12px;
+      background: transparent;
+      color: rgba(255,255,255,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: left;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.7);
+    }
+
+    /* MAIN */
+    .main { margin-left: var(--sidebar-w); min-height: 100vh; }
+
+    .topbar {
+      background: white;
+      height: 58px;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      position: sticky; top: 0; z-index: 100;
+      justify-content: space-between;
+    }
+
+    .topbar-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+    .content { padding: 28px 32px; max-width: 1180px; }
+
+    /* ===================== CARDS ===================== */
+    .card {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    /* ===================== GRIDS ===================== */
+    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+    .g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+
+    /* ===================== STAT CARDS ===================== */
+    .stat {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1;
+    }
+
+    /* ===================== BUTTONS ===================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      border-radius: 9px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.14s;
+      white-space: nowrap;
+    }
+
+    .btn-primary { background: var(--navy); color: white; }
+    .btn-primary:hover { background: var(--navy-mid); }
+
+    .btn-amber { background: var(--amber); color: white; }
+    .btn-amber:hover { filter: brightness(0.9); }
+
+    .btn-outline {
+      background: white;
+      color: var(--gray-600);
+      border: 1.5px solid var(--gray-200);
+    }
+    .btn-outline:hover { border-color: var(--navy); color: var(--navy); }
+
+    .btn-danger { background: var(--red-pale); color: var(--red); border: 1.5px solid #fecaca; }
+    .btn-danger:hover { background: var(--red); color: white; }
+
+    .btn-sm { padding: 5px 11px; font-size: 12px; border-radius: 7px; }
+
+    /* ===================== TABLES ===================== */
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 9px 14px;
+      border-bottom: 2px solid var(--gray-100);
+    }
+    td {
+      padding: 12px 14px;
+      font-size: 13.5px;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--gray-50); }
+
+    /* ===================== BADGES ===================== */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+    .badge-green { background: var(--green-pale); color: #1e7a42; }
+    .badge-amber { background: var(--amber-pale); color: #92620f; }
+    .badge-red { background: var(--red-pale); color: #b91c1c; }
+    .badge-blue { background: var(--blue-pale); color: #1d4ed8; }
+    .badge-gray { background: var(--gray-100); color: var(--gray-600); }
+
+    /* ===================== FORMS ===================== */
+    .fg { margin-bottom: 15px; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-600);
+      margin-bottom: 5px;
+      letter-spacing: 0.2px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="password"],
+    select, textarea {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 9px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--gray-800);
+      outline: none;
+      transition: border-color 0.18s;
+      background: white;
+      appearance: auto;
+    }
+
+    input:focus, select:focus, textarea:focus { border-color: var(--amber); }
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* ===================== MODAL ===================== */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(15,25,50,0.5);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 800;
+    }
+
+    .overlay.open { display: flex; }
+
+    .modal {
+      background: white;
+      border-radius: 18px;
+      padding: 32px;
+      width: 560px;
+      max-width: 95vw;
+      max-height: 88vh;
+      overflow-y: auto;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.22);
+      animation: modalIn 0.2s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 22px;
+    }
+
+    .modal-actions {
+      display: flex; gap: 10px; justify-content: flex-end;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--gray-100);
+    }
+
+    /* ===================== AREA TABS ===================== */
+    .area-tabs {
+      display: flex;
+      gap: 3px;
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 5px;
+      margin-bottom: 20px;
+      width: fit-content;
+    }
+
+    .atab {
+      padding: 7px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--gray-600);
+      transition: all 0.13s;
+    }
+
+    .atab:hover { color: var(--navy); }
+    .atab.active {
+      background: var(--navy);
+      color: white;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    }
+
+    /* ===================== CALENDAR ===================== */
+    .cal-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .cal-month-label {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--navy);
+      text-transform: capitalize;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+    }
+
+    .cal-hdr {
+      text-align: center;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 7px 4px;
+    }
+
+    .cal-cell {
+      min-height: 88px;
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 6px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.13s;
+      overflow: hidden;
+    }
+
+    .cal-cell:hover { border-color: var(--amber); background: var(--amber-pale); }
+    .cal-cell.empty { background: var(--gray-50); cursor: default; border-color: transparent; }
+    .cal-cell.today { border-color: var(--amber); border-width: 2px; }
+
+    .cal-num {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-400);
+      margin-bottom: 4px;
+    }
+
+    .cal-cell.today .cal-num { color: var(--amber); }
+
+    .cal-evt {
+      font-size: 9.5px;
+      padding: 2px 5px;
+      border-radius: 4px;
+      margin-bottom: 2px;
+      line-height: 1.3;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cal-evt-ceuss     { background: #fffbeb; color: #92620f; }
+    .cal-evt-cultural  { background: #eff6ff; color: #1d4ed8; }
+    .cal-evt-diseno    { background: #f0faf4; color: #1e7a42; }
+    .cal-evt-ediciones { background: #fff1f2; color: #b91c1c; }
+
+    /* ===================== PROGRESS ===================== */
+    .pbar {
+      width: 100%;
+      height: 7px;
+      background: var(--gray-200);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .pbar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--amber);
+      transition: width 0.4s ease;
+    }
+
+    .pbar-fill.green { background: var(--green); }
+    .pbar-fill.red { background: var(--red); }
+
+    /* ===================== WORKLOAD ROW ===================== */
+    .wrow {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .wrow:last-child { border-bottom: none; }
+
+    .wrow-name {
+      width: 130px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--navy);
+      flex-shrink: 0;
+    }
+
+    .wrow-bar { flex: 1; }
+    .wrow-count { width: 52px; text-align: right; font-size: 12px; color: var(--gray-400); }
+
+    /* ===================== KPI CARD ===================== */
+    .kpi-card {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 13px;
+      padding: 20px;
+    }
+
+    .kpi-label {
+      font-size: 13px;
+      color: var(--gray-600);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--gray-400);
+      margin-bottom: 12px;
+    }
+
+    .kpi-nums {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+
+    .kpi-val { font-size: 28px; font-weight: 700; color: var(--navy); }
+    .kpi-meta { font-size: 13px; color: var(--gray-400); }
+
+    /* ===================== TOAST ===================== */
+    #toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--navy);
+      color: white;
+      padding: 11px 20px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.25s;
+      pointer-events: none;
+      max-width: 300px;
+    }
+
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.ok { border-left: 4px solid var(--green); }
+    #toast.err { border-left: 4px solid var(--red); }
+
+    /* ===================== DIRECC SECTION ===================== */
+    .dir-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+    /* ===================== EMPTY STATE ===================== */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--gray-400);
+    }
+
+    .empty-state .es-icon { font-size: 36px; margin-bottom: 10px; }
+    .empty-state p { font-size: 14px; }
+
+    /* ===================== RESPONSIVE ===================== */
+    @media (max-width: 860px) {
+      .g3 { grid-template-columns: 1fr 1fr; }
+      .g4 { grid-template-columns: 1fr 1fr; }
+      .dir-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      :root { --sidebar-w: 56px; }
+      .sidebar-logo, .sidebar-role, .sidebar-area,
+      .nav-item > span:not(.nav-icon),
+      .nav-section, .logout-btn span { display: none; }
+      .nav-item { justify-content: center; padding: 12px; }
+      .content { padding: 16px; }
+      .g2, .g3, .g4 { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-<div id="app">
-  <!-- SIDEBAR -->
-  <div id="sidebar">
-    <div class="sb-brand">
-      <div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:5px">Planificador · USS</div>
-      <div style="font-size:15px;font-weight:800;color:#fff;display:flex;align-items:center;gap:6px">
-        <span id="sb-area-name">CEUSS</span>
-        <span style="font-size:10px;color:rgba(255,255,255,.3)">▾</span>
-      </div>
-    </div>
-    <div class="sb-areas" id="sb-areas"></div>
-    <div class="sb-month">
-      <button class="month-nav-btn" id="prev-month">&#8249;</button>
-      <div style="text-align:center">
-        <div id="month-label" style="font-size:13px;font-weight:700;color:#fff"></div>
-        <div id="year-label" style="font-size:10px;color:rgba(255,255,255,.35)"></div>
-      </div>
-      <button class="month-nav-btn" id="next-month">&#8250;</button>
-    </div>
-    <nav class="sb-nav" id="sb-nav"></nav>
-    <div class="sb-footer">
-      <div id="sb-sync" style="font-size:11px;color:rgba(255,255,255,.3);margin-bottom:4px"></div>
-      <div id="sb-footer-info" style="font-size:11px;color:rgba(255,255,255,.25)"></div>
-    </div>
-  </div>
 
-  <!-- MAIN -->
-  <div id="main">
-    <div id="topbar">
-      <div style="flex:1;min-width:0">
-        <h2 id="topbar-title" style="font-size:17px;font-weight:800;color:#0F172A;line-height:1.2"></h2>
-        <p id="topbar-sub" style="font-size:11px;color:#94A3B8;margin-top:1px"></p>
-      </div>
-      <div style="position:relative;flex-shrink:0">
-        <input type="text" id="search-input" placeholder="Buscar tareas, eventos, decisiones...">
-      </div>
-      <button class="btn btn-ghost btn-sm" data-action="open-settings" style="flex-shrink:0">⚙ Configurar</button>
-      <div id="sync-status" style="font-size:11px;color:#94A3B8;white-space:nowrap;flex-shrink:0"></div>
+<!-- ======================== LOGIN ======================== -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-badge">Universidad San Sebastian</div>
+    <div class="login-title">Planificador<br>CEUSS</div>
+    <div class="login-sub">Plan Estrategico 2026 &ndash; 2028</div>
+    <div class="login-box">
+      <label>Codigo de acceso</label>
+      <input type="password" id="login-input" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="off">
+      <button class="login-btn" onclick="doLogin()">Ingresar</button>
+      <div class="login-error" id="login-err">Codigo incorrecto. Intenta nuevamente.</div>
     </div>
-    <div id="content-area"></div>
   </div>
 </div>
-<div id="modal-container"></div>
+
+<!-- ======================== APP ======================== -->
+<div id="app">
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">CEUSS</div>
+      <div class="sidebar-role" id="sb-role"></div>
+      <div class="sidebar-area" id="sb-area"></div>
+    </div>
+    <div class="sidebar-nav" id="sb-nav"></div>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="doLogout()">&#8629; <span>Cerrar sesion</span></button>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Planificador CEUSS</div>
+      <div class="topbar-actions" id="topbar-actions"></div>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<!-- ======================== MODAL ======================== -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal-body"></div>
+</div>
+
+<!-- ======================== TOAST ======================== -->
 <div id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════
-// CONSTANTS
-// ═══════════════════════════════════════════════════════════════
-const CATS=[
-  {id:'hito',       label:'Hitos Estratégicos',    color:'#6D28D9',bg:'#EDE9FE'},
-  {id:'presupuesto',label:'Gestión Presupuestaria', color:'#1D4ED8',bg:'#DBEAFE'},
-  {id:'proveedor',  label:'Proveedores Externos',   color:'#C2410C',bg:'#FFEDD5'},
-  {id:'apoyo_uss',  label:'Apoyos Internos USS',    color:'#B45309',bg:'#FEF3C7'},
-  {id:'coordinacion',label:'Coordinación Interna',  color:'#065F46',bg:'#D1FAE5'},
-  {id:'decision',   label:'Decisiones Dirección',   color:'#9F1239',bg:'#FFE4E6'},
-  {id:'riesgo',     label:'Riesgo / Alerta',        color:'#374151',bg:'#F3F4F6'},
+/* ============================================================
+   CONFIG
+============================================================ */
+const SHEET_ID = '1bncSG3-ZRlWWj1Utnpp5aa71zgc471HYvIUSNCuVYtk';
+
+const AREAS = [
+  { id: 'ceuss',     name: 'CEUSS',             color: 'ceuss',     jefa: 'Mini' },
+  { id: 'cultural',  name: 'Extension Cultural', color: 'cultural',  jefa: 'Daniela Correa' },
+  { id: 'diseno',    name: 'Diseno',             color: 'diseno',    jefa: 'Elisa' },
+  { id: 'ediciones', name: 'Ediciones',          color: 'ediciones', jefa: 'Constanza' }
 ];
-const MONTHS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const MS=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-const DAYS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-const STATUS={
-  pendiente:   {label:'Pendiente',  color:'#6B7280',bg:'#F9FAFB'},
-  en_progreso: {label:'En Progreso',color:'#2563EB',bg:'#EFF6FF'},
-  completado:  {label:'Completado', color:'#059669',bg:'#F0FDF4'},
-  bloqueado:   {label:'Bloqueado',  color:'#DC2626',bg:'#FEF2F2'},
-};
-const RISK_ST={
-  activo:  {label:'Activo',  color:'#DC2626',bg:'#FEF2F2'},
-  mitigado:{label:'Mitigado',color:'#D97706',bg:'#FEF3C7'},
-  resuelto:{label:'Resuelto',color:'#059669',bg:'#F0FDF4'},
-};
-const DEC_T={
-  estrategica:   {label:'Estratégica',   color:'#6D28D9',bg:'#EDE9FE'},
-  operativa:     {label:'Operativa',     color:'#1D4ED8',bg:'#DBEAFE'},
-  presupuestaria:{label:'Presupuestaria',color:'#C2410C',bg:'#FFEDD5'},
-  institucional: {label:'Institucional', color:'#9F1239',bg:'#FFE4E6'},
-};
-const PRIO={alta:{label:'Alta',color:'#DC2626',bg:'#FEF2F2'},media:{label:'Media',color:'#D97706',bg:'#FEF3C7'},baja:{label:'Baja',color:'#059669',bg:'#F0FDF4'}};
-const AREA_COLS=['#6D28D9','#1D4ED8','#065F46','#9F1239','#C2410C','#B45309','#0891B2','#7C3AED'];
-const MEM_COLS=['#6D28D9','#1D4ED8','#065F46','#9F1239','#C2410C','#B45309','#0891B2','#7C3AED','#059669','#1A2A42'];
-const NAV_MONTHLY=[
-  {id:'hoy',      label:'Hoy & Alertas',  icon:'🔔'},
-  {id:'calendar', label:'Planificador',   icon:'📅'},
-  {id:'tareas',   label:'Tareas',         icon:'✅'},
-  {id:'kpis',     label:'KPIs',           icon:'📊'},
-  {id:'riesgos',  label:'Riesgos',        icon:'⚠️'},
-  {id:'decisiones',label:'Decisiones',   icon:'📌'},
-  {id:'resumen',  label:'Resumen Mes',    icon:'📋'},
+
+const TEAM = ['Mini', 'Daniela Correa', 'Elisa', 'Constanza', 'Jacinto', 'Francisca', 'Natalia', 'Camila', 'Ismini'];
+
+const DEFAULT_KPIS = [
+  { id:'k1', nombre:'Actividades de extension realizadas',    meta:60,   actual:0, unidad:'actividades', area:'ceuss',     frecuencia:'Anual' },
+  { id:'k2', nombre:'Asistentes a actividades culturales',    meta:3000, actual:0, unidad:'personas',    area:'cultural',  frecuencia:'Anual' },
+  { id:'k3', nombre:'Publicaciones de Ediciones USS',         meta:12,   actual:0, unidad:'publicaciones',area:'ediciones',frecuencia:'Anual' },
+  { id:'k4', nombre:'Proyectos de diseno completados',        meta:40,   actual:0, unidad:'proyectos',   area:'diseno',    frecuencia:'Anual' },
+  { id:'k5', nombre:'Tasa de satisfaccion de participantes',  meta:85,   actual:0, unidad:'%',           area:'ceuss',     frecuencia:'Semestral' },
+  { id:'k6', nombre:'Convenios y alianzas activas',           meta:20,   actual:0, unidad:'convenios',   area:'ceuss',     frecuencia:'Anual' },
+  { id:'k7', nombre:'Impactos en medios y difusion',          meta:150,  actual:0, unidad:'impactos',    area:'ceuss',     frecuencia:'Anual' },
+  { id:'k8', nombre:'Ejecucion presupuestaria',               meta:90,   actual:0, unidad:'%',           area:'ceuss',     frecuencia:'Semestral' }
 ];
-const NAV_GLOBAL=[
-  {id:'historial',label:'Historial Anual',   icon:'📈'},
-  {id:'carga',    label:'Carga del Equipo',  icon:'⚖️'},
-  {id:'direccion',label:'Vista Dirección',   icon:'🏛️'},
-  {id:'busqueda', label:'Búsqueda Global',   icon:'🔍'},
-  {id:'equipo',   label:'Equipo',            icon:'👥'},
-];
-const SK='ceuss_planner_v5';
 
-// ═══════════════════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════════════════
-let S={
-  area:'area0',tab:'hoy',
-  month:new Date().getMonth()+1,year:new Date().getFullYear(),
-  taskFilter:'all',searchQ:'',
-  syncState:'idle',
-  data:{
-    areas:[{id:'area0',name:'CEUSS',color:'#6D28D9'}],
-    areaData:{area0:{teamMembers:[],months:{}}},
-    settings:{sheetsUrl:'https://script.google.com/macros/s/AKfycbzccC6VmMK-mwYPwoZ3gvpmvahjQdfRw87g3CtkD9e6rZ43jLodHKjwbGX_tFHhxD--/exec',directorName:'Dirección'}
-  }
-};
-
-const genId=()=>Math.random().toString(36).slice(2,10);
-function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function hl(s,q){if(!q)return escH(s);const r=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');return escH(s).replace(r,'<mark class="hl">$1</mark>');}
-function catFor(id){return CATS.find(c=>c.id===id)||CATS[0];}
-function mkey(m,y){return`${y||S.year}-${String(m||S.month).padStart(2,'0')}`;}
-
-function aData(areaId){
-  const a=areaId||S.area;
-  if(!S.data.areaData[a])S.data.areaData[a]={teamMembers:[],months:{}};
-  return S.data.areaData[a];
-}
-function mdata(m,y){
-  const k=mkey(m,y);const ad=aData();
-  if(!ad.months[k])ad.months[k]={events:[],tasks:[],kpis:[],risks:[],milestones:[],decisions:[],notes:{objectives:'',achievements:'',learnings:'',pending:''}};
-  return ad.months[k];
-}
-function curArea(){return S.data.areas.find(a=>a.id===S.area)||S.data.areas[0];}
-function members(){return aData().teamMembers||[];}
-function memberName(initial){const m=members().find(m=>m.initial===initial);return m?m.name:initial;}
-function memberColor(initial){const i=members().findIndex(m=>m.initial===initial);return MEM_COLS[Math.max(0,i)%MEM_COLS.length];}
-function memberAvatar(initial,size=26){const c=memberColor(initial);return`<div style="width:${size}px;height:${size}px;border-radius:${Math.round(size*.35)}px;background:${c};display:inline-flex;align-items:center;justify-content:center;font-size:${Math.round(size*.42)}px;font-weight:800;color:#fff;flex-shrink:0;vertical-align:middle">${escH(initial||'?')}</div>`;}
-
-// ═══════════════════════════════════════════════════════════════
-// SEMÁFORO
-// ═══════════════════════════════════════════════════════════════
-const SEM_COLORS={red:'#EF4444',yellow:'#F59E0B',green:'#10B981',neutral:'rgba(255,255,255,0.15)'};
-function areaStatus(areaId){
-  const ad=S.data.areaData[areaId];if(!ad)return'neutral';
-  const k=mkey();const md=ad.months[k];if(!md)return'neutral';
-  const tasks=md.tasks||[];const risks=md.risks||[];
-  if(tasks.some(t=>t.status==='bloqueado'))return'red';
-  if(risks.some(r=>r.status==='activo'&&(r.impact==='alto'||r.impact==='crítico')))return'red';
-  const today=new Date().toISOString().slice(0,10);
-  if(tasks.some(t=>t.deadline&&t.deadline<today&&t.status!=='completado'))return'yellow';
-  if(risks.some(r=>r.status==='activo'))return'yellow';
-  const done=tasks.filter(t=>t.status==='completado').length;
-  if(tasks.length>0&&done/tasks.length>=.75)return'green';
-  return'neutral';
-}
-function tabStatus(tabId){
-  const md=mdata();const tasks=md.tasks||[];const risks=md.risks||[];
-  const today=new Date().toISOString().slice(0,10);
-  if(tabId==='tareas'){if(tasks.some(t=>t.status==='bloqueado'))return'red';if(tasks.some(t=>t.deadline&&t.deadline<today&&t.status!=='completado'))return'yellow';return'neutral';}
-  if(tabId==='riesgos'){if(risks.some(r=>r.status==='activo'&&(r.impact==='alto'||r.impact==='crítico')))return'red';if(risks.some(r=>r.status==='activo'))return'yellow';return'neutral';}
-  if(tabId==='hoy'){const s=areaStatus(S.area);if(s!=='neutral')return s;return'neutral';}
-  return'neutral';
-}
-
-// ═══════════════════════════════════════════════════════════════
-// STORAGE & SYNC
-// ═══════════════════════════════════════════════════════════════
-let saveTimer=null;
-function save(){clearTimeout(saveTimer);saveTimer=setTimeout(persistSave,600);}
-async function persistSave(){
-  try{localStorage.setItem(SK,JSON.stringify(S.data));}catch(e){}
-  const url=S.data.settings?.sheetsUrl||SHEETS_URL;
-  if(!url)return;
-  S.syncState='syncing';updateSyncUI();
-  try{
-    const resp=await fetch(url,{method:'POST',body:JSON.stringify(S.data),headers:{'Content-Type':'text/plain'}});
-    const txt=await resp.text();
-    S.syncState=JSON.parse(txt).ok?'ok':'error';
-  }catch(e){S.syncState='error';}
-  updateSyncUI();
-}
-function resetData(){
-  if(!confirm('Esto borrará todos los datos guardados (navegador y Google Sheets) y cargará las 4 áreas, 8 integrantes y KPIs base. ¿Continuar?')) return;
-  // 1. Limpiar localStorage
-  localStorage.removeItem('ceuss_planner_v5');
-  localStorage.removeItem('ceuss_planner_v4');
-  localStorage.removeItem('ceuss_planner_v3');
-  localStorage.removeItem('ceuss_version');
-  // 2. Reiniciar estado con estructura base
-  var savedUrl = S.data.settings && S.data.settings.sheetsUrl ? S.data.settings.sheetsUrl : SHEETS_URL;
-  S.data = {
-    areas: DEFAULT_AREAS.map(function(a){ return Object.assign({},a); }),
-    areaData: {},
-    settings: {sheetsUrl: savedUrl, directorName: 'Dirección'}
+function getDefaultData() {
+  return {
+    events: [],
+    tasks: [],
+    kpis: JSON.parse(JSON.stringify(DEFAULT_KPIS)),
+    risks: [],
+    decisions: []
   };
-  // 3. Cargar equipo y KPIs base en cada área
-  S.data.areas.forEach(function(a){
-    S.data.areaData[a.id] = {teamMembers: [], months: {}};
-    S.data.areaData[a.id].teamMembers = DEFAULT_MEMBERS.map(function(m){
-      return {id:genId(), name:m.name, initial:m.initial, role:m.role, email:m.email};
-    });
-    var k = mkey();
-    S.data.areaData[a.id].months[k] = {
-      events:[], tasks:[], risks:[], milestones:[], decisions:[],
-      notes:{objectives:'',achievements:'',learnings:'',pending:''},
-      kpis: DEFAULT_KPIS.map(function(kpi){
-        return {id:genId(), name:kpi.name, description:kpi.description, current:kpi.current, target:kpi.target, unit:kpi.unit, notes:kpi.notes};
-      })
-    };
-  });
-  S.area = S.data.areas[0].id;
-  // 4. Guardar en localStorage Y en Sheets (sobreescribe datos viejos)
-  try{ localStorage.setItem('ceuss_version','2026-03-v3'); }catch(e){}
-  persistSave(); // fuerza guardar en Sheets inmediatamente
-  closeModal();
-  renderAll();
-  showToast('¡Restablecido! Ya aparecen las 4 áreas.');
 }
 
-var APP_VERSION = '2026-03-v3';
+function getCodes() {
+  try {
+    const s = localStorage.getItem('ceuss_codes');
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return { ceuss:'ceuss2026', cultural:'cultural2026', diseno:'diseno2026', ediciones:'ediciones2026' };
+}
 
-var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzccC6VmMK-mwYPwoZ3gvpmvahjQdfRw87g3CtkD9e6rZ43jLodHKjwbGX_tFHhxD--/exec';
+function saveCodes(c) { localStorage.setItem('ceuss_codes', JSON.stringify(c)); }
 
-async function loadData(){
-  // Limpiar cache si la version cambio
-  var savedVersion = localStorage.getItem('ceuss_version');
-  if(savedVersion !== APP_VERSION){
-    localStorage.removeItem('ceuss_planner_v5');
-    localStorage.removeItem('ceuss_planner_v4');
-    localStorage.removeItem('ceuss_planner_v3');
-    localStorage.setItem('ceuss_version', APP_VERSION);
+/* ============================================================
+   STATE
+============================================================ */
+let CU = null;   // current user
+let DATA = getDefaultData();
+let SEC = 'calendario';
+let CAL_DATE = new Date();
+let ACTIVE_TAB = '';
+let SCRIPT_URL = '';
+
+/* ============================================================
+   LOGIN / LOGOUT
+============================================================ */
+document.getElementById('login-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+function doLogin() {
+  const code = document.getElementById('login-input').value.trim();
+  const codes = getCodes();
+  const errEl = document.getElementById('login-err');
+  errEl.style.display = 'none';
+
+  let user = null;
+  if (code === codes.ceuss) {
+    user = { id:'ceuss', name:'Mini', areaName:'CEUSS', isDir:true };
+  } else if (code === codes.cultural) {
+    user = { id:'cultural', name:'Daniela Correa', areaName:'Extension Cultural', isDir:false };
+  } else if (code === codes.diseno) {
+    user = { id:'diseno', name:'Elisa', areaName:'Diseno', isDir:false };
+  } else if (code === codes.ediciones) {
+    user = { id:'ediciones', name:'Constanza', areaName:'Ediciones', isDir:false };
   }
-  // Cargar desde localStorage si hay datos
-  try{var v=localStorage.getItem(SK);if(v){var p=JSON.parse(v);if(p&&p.areas)S.data=p;}}catch(e){}
 
-  // SIEMPRE garantizar que existen las 4 areas base
-  if(!S.data.areas || S.data.areas.length === 0){
-    S.data.areas = DEFAULT_AREAS.map(function(a){return Object.assign({},a);});
-  } else {
-    // Agregar areas base que falten (sin borrar las existentes)
-    DEFAULT_AREAS.forEach(function(da){
-      var exists = S.data.areas.some(function(a){return a.id === da.id;});
-      if(!exists) S.data.areas.push(Object.assign({},da));
-    });
-  }
-  if(!S.data.areaData) S.data.areaData = {};
+  if (!user) { errEl.style.display = 'block'; return; }
 
-  // SIEMPRE garantizar integrantes y KPIs base en cada area
-  S.data.areas.forEach(function(a){
-    if(!S.data.areaData[a.id]) S.data.areaData[a.id] = {teamMembers:[], months:{}};
-    if(!S.data.areaData[a.id].teamMembers || S.data.areaData[a.id].teamMembers.length === 0){
-      S.data.areaData[a.id].teamMembers = DEFAULT_MEMBERS.map(function(m){
-        return {id:genId(), name:m.name, initial:m.initial, role:m.role, email:m.email};
-      });
-    }
-    if(!S.data.areaData[a.id].months) S.data.areaData[a.id].months = {};
-    var k = mkey();
-    if(!S.data.areaData[a.id].months[k]){
-      S.data.areaData[a.id].months[k] = {events:[],tasks:[],kpis:[],risks:[],milestones:[],decisions:[],notes:{objectives:'',achievements:'',learnings:'',pending:''}};
-    }
-    if(!S.data.areaData[a.id].months[k].kpis || S.data.areaData[a.id].months[k].kpis.length === 0){
-      S.data.areaData[a.id].months[k].kpis = DEFAULT_KPIS.map(function(kpi){
-        return {id:genId(), name:kpi.name, description:kpi.description, current:kpi.current, target:kpi.target, unit:kpi.unit, notes:kpi.notes};
-      });
-    }
-  });
+  CU = user;
+  ACTIVE_TAB = CU.id;
+  SCRIPT_URL = localStorage.getItem('ceuss_script_url') || '';
 
-  // Sincronizar con Sheets (en segundo plano, sin bloquear la UI)
-  var url = SHEETS_URL;
-  if(!S.data.settings) S.data.settings = {};
-  S.data.settings.sheetsUrl = url;
-  S.area = S.data.areas[0].id;
-
-  // Guardar estructura base en localStorage ya
-  try{localStorage.setItem(SK, JSON.stringify(S.data));}catch(e){}
-
-  // Ahora intentar sincronizar con Sheets sin bloquear
-  if(url){
-    S.syncState='syncing'; updateSyncUI();
-    fetch(url+'?t='+Date.now()).then(function(resp){
-      return resp.json();
-    }).then(function(kv){
-      // Solo actualizar meses con datos reales (no sobreescribir estructura base)
-      if(kv.areas && kv.areas.length > 0){
-        // Fusionar: mantener areas base + agregar las de Sheets que no dupliquen nombre ni id
-        var defaultIds = DEFAULT_AREAS.map(function(d){return d.id;});
-        var defaultNames = DEFAULT_AREAS.map(function(d){return d.name.toLowerCase();});
-        kv.areas.forEach(function(ka){
-          var sameId = S.data.areas.some(function(a){return a.id === ka.id;});
-          var sameName = S.data.areas.some(function(a){return a.name.toLowerCase() === ka.name.toLowerCase();});
-          if(!sameId && !sameName){
-            // Es un area nueva creada por el usuario en Sheets, agregarla
-            S.data.areas.push(ka);
-          }
-          // Si tiene el mismo id, actualizar color/nombre
-          if(sameId){
-            S.data.areas = S.data.areas.map(function(a){return a.id===ka.id?ka:a;});
-          }
-        });
-      }
-      if(kv.settings && kv.settings.sheetsUrl) S.data.settings = kv.settings;
-      // Fusionar datos de meses (no sobreescribir equipos base)
-      Object.keys(kv).forEach(function(key){
-        if(key.startsWith('members_')){
-          var aId = key.replace('members_','');
-          if(kv[key] && kv[key].length > 0){
-            if(!S.data.areaData[aId]) S.data.areaData[aId] = {teamMembers:[], months:{}};
-            S.data.areaData[aId].teamMembers = kv[key];
-          }
-        }
-        if(key.startsWith('month_')){
-          var parts = key.replace('month_','').split('_');
-          var aId2 = parts[0];
-          var mKey = parts[1]+'-'+parts[2];
-          if(!S.data.areaData[aId2]) S.data.areaData[aId2] = {teamMembers:[], months:{}};
-          if(!S.data.areaData[aId2].months) S.data.areaData[aId2].months = {};
-          S.data.areaData[aId2].months[mKey] = kv[key];
-        }
-      });
-      try{localStorage.setItem(SK, JSON.stringify(S.data));}catch(e){}
-      S.syncState='ok'; updateSyncUI();
-      renderAll(); // Re-render con datos de Sheets
-    }).catch(function(){
-      S.syncState='error'; updateSyncUI();
-    });
-  }
-}
-function updateSyncUI(){
-  const labels={idle:'',syncing:'⟳ Sincronizando...',ok:'✓ Sincronizado',error:'✗ Error de sync'};
-  const el=document.getElementById('sync-status');
-  if(el)el.textContent=labels[S.syncState]||'';
-  const sbs=document.getElementById('sb-sync');
-  if(sbs){const dot={idle:'',syncing:'🔄',ok:'✅',error:'❌'}[S.syncState]||'';sbs.textContent=dot?(dot+' Sheets'):'Sin Sheets';}
-}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
-
-// ═══════════════════════════════════════════════════════════════
-// RENDER HELPERS
-// ═══════════════════════════════════════════════════════════════
-function badge(l,c,bg){return`<span class="badge" style="color:${c};background:${bg}">${l}</span>`;}
-function statusBadge(s){const c=STATUS[s]||STATUS.pendiente;return badge(c.label,c.color,c.bg);}
-function catBadge(id){const c=catFor(id);return badge(c.label,c.color,c.bg);}
-function prioBadge(p){const c=PRIO[p]||PRIO.media;return badge('↑ '+c.label,c.color,c.bg);}
-function riskBadge(s){const c=RISK_ST[s]||RISK_ST.activo;return badge(c.label,c.color,c.bg);}
-function decBadge(t){const c=DEC_T[t]||DEC_T.operativa;return badge(c.label,c.color,c.bg);}
-// Form helpers
-function fi(id,val,ph,type){return`<input type="${type||'text'}" id="${id}" value="${escH(String(val||''))}" placeholder="${ph||''}" class="form-input">`;}
-function fs(id,opts){return`<select id="${id}" class="form-select">${opts}</select>`;}
-function ft(id,val,ph,rows){return`<textarea id="${id}" rows="${rows||3}" placeholder="${ph||''}" class="form-textarea">${escH(val||'')}</textarea>`;}
-function fl(label,html){return`<div class="field-group"><label class="field-label">${label}</label>${html}</div>`;}
-function gv(id){const e=document.getElementById(id);return e?e.value.trim():'';}
-// Member select options - shows FULL NAME
-function memberOpts(selected){
-  return`<option value="">Sin asignar</option>`+members().map(m=>`<option value="${m.initial}"${m.initial===selected?' selected':''}>${escH(m.name)} (${escH(m.initial)})</option>`).join('');
-}
-function catOpts(sel){return CATS.map(c=>`<option value="${c.id}"${c.id===sel?' selected':''}>${c.label}</option>`).join('');}
-function statusOpts(sel){return Object.entries(STATUS).map(([k,v])=>`<option value="${k}"${k===sel?' selected':''}>${v.label}</option>`).join('');}
-function pbar(pct,color){return`<div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>`;}
-
-// ═══════════════════════════════════════════════════════════════
-// SIDEBAR
-// ═══════════════════════════════════════════════════════════════
-function renderSidebar(){
-  // Area name
-  const ca=curArea();
-  document.getElementById('sb-area-name').textContent=ca?.name||'CEUSS';
-
-  // Area tabs
-  const atabs=S.data.areas.map((a,i)=>{
-    const col=a.color||AREA_COLS[i%AREA_COLS.length];
-    const st=areaStatus(a.id);
-    return`<button class="area-tab${S.area===a.id?' active':''}" data-area="${a.id}">
-      <div class="area-dot" style="background:${SEM_COLORS[st]}"></div>
-      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${escH(a.name)}</span>
-      <div style="width:9px;height:9px;border-radius:3px;background:${col};flex-shrink:0;opacity:.8"></div>
-    </button>`;
-  }).join('');
-  document.getElementById('sb-areas').innerHTML=atabs+`<button class="area-tab" data-action="add-area" style="color:rgba(255,255,255,.3);font-size:11px;padding:5px 10px">+ Nueva área</button>`;
-
-  // Month nav
-  document.getElementById('month-label').textContent=MONTHS[S.month-1];
-  document.getElementById('year-label').textContent=S.year;
-
-  // Nav tabs with semáforo
-  const navItem=(t)=>{
-    const st=tabStatus(t.id);
-    return`<button class="nav-btn${S.tab===t.id?' active':''}" data-tab="${t.id}">
-      <span class="nb-icon">${t.icon}</span>
-      <span class="nb-label">${t.label}</span>
-      ${st!=='neutral'?`<div class="nav-dot" style="background:${SEM_COLORS[st]}"></div>`:''}
-    </button>`;
-  };
-  document.getElementById('sb-nav').innerHTML=
-    '<div class="sb-section-label">Este mes</div>'+NAV_MONTHLY.map(navItem).join('')+
-    '<div class="sb-section-label">Global</div>'+NAV_GLOBAL.map(navItem).join('');
-
-  // Footer
-  document.getElementById('sb-footer-info').textContent=`${members().length} integrante${members().length!==1?'s':''} · ${ca?.name||''}`;
-  updateSyncUI();
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  initApp();
 }
 
-// ═══════════════════════════════════════════════════════════════
-// RENDER MAIN
-// ═══════════════════════════════════════════════════════════════
-function renderMain(){
-  const allTabs=[...NAV_MONTHLY,...NAV_GLOBAL];
-  const tab=allTabs.find(t=>t.id===S.tab);
-  const globalTabs=['historial','carga','direccion','busqueda','equipo'];
-  document.getElementById('topbar-title').textContent=tab?.label||'';
-  document.getElementById('topbar-sub').textContent=globalTabs.includes(S.tab)?`${S.year} · Vista global`:`${MONTHS[S.month-1]} ${S.year} · ${curArea()?.name||''}`;
-  const html={
-    hoy:viewHoy,calendar:viewCalendar,tareas:viewTareas,kpis:viewKpis,
-    riesgos:viewRiesgos,decisiones:viewDecisiones,resumen:viewResumen,
-    historial:viewHistorial,carga:viewCarga,direccion:viewDireccion,
-    busqueda:viewBusqueda,equipo:viewEquipo
-  }[S.tab];
-  document.getElementById('content-area').innerHTML=html?html():'';
-  bindNotes();
+function doLogout() {
+  CU = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-input').value = '';
 }
-function renderAll(){renderSidebar();renderMain();}
 
-// ═══════════════════════════════════════════════════════════════
-// VIEW: HOY & ALERTAS
-// ═══════════════════════════════════════════════════════════════
-function viewHoy(){
-  const todayStr=new Date().toISOString().slice(0,10);
-  const todayDay=new Date().getDate();
-  const md=mdata();
-  const todayEvents=(md.events||[]).filter(e=>parseInt(e.day)===todayDay);
-  const overdue=(md.tasks||[]).filter(t=>t.deadline&&t.deadline<todayStr&&t.status!=='completado');
-  const blocked=(md.tasks||[]).filter(t=>t.status==='bloqueado');
-  const activeRisks=(md.risks||[]).filter(r=>r.status==='activo');
-  const upcomingMs=(md.milestones||[]).filter(m=>m.status!=='completado');
-  const pendingDec=(md.decisions||[]).filter(d=>d.followUp).slice(0,3);
+/* ============================================================
+   INIT
+============================================================ */
+function initApp() {
+  document.getElementById('sb-role').textContent = CU.isDir ? 'Directora' : CU.name;
+  document.getElementById('sb-area').textContent = CU.areaName;
+  buildSidebar();
+  loadData();
+}
 
-  // Quick stat bar
-  const stats=[
-    {l:'Eventos hoy',v:todayEvents.length,c:'#1D4ED8',bg:'#DBEAFE'},
-    {l:'Vencidas',v:overdue.length,c:overdue.length>0?'#DC2626':'#059669',bg:overdue.length>0?'#FEF2F2':'#F0FDF4'},
-    {l:'Bloqueadas',v:blocked.length,c:blocked.length>0?'#DC2626':'#059669',bg:blocked.length>0?'#FEF2F2':'#F0FDF4'},
-    {l:'Riesgos activos',v:activeRisks.length,c:activeRisks.length>0?'#D97706':'#059669',bg:activeRisks.length>0?'#FEF3C7':'#F0FDF4'},
+/* ============================================================
+   SIDEBAR
+============================================================ */
+function buildSidebar() {
+  const items = [
+    { id:'calendario', icon:'&#128197;', label:'Calendario' },
+    { id:'tareas',     icon:'&#9989;',   label:'Tareas' },
+    { id:'kpis',       icon:'&#128202;', label:'KPIs' },
+    { id:'riesgos',    icon:'&#9888;',   label:'Riesgos' },
+    { id:'decisiones', icon:'&#128221;', label:'Decisiones' },
   ];
-  const statBar=stats.map(s=>`<div style="background:${s.bg};border-radius:10px;padding:14px 16px;flex:1"><div style="font-size:26px;font-weight:800;color:${s.c}">${s.v}</div><div style="font-size:11px;color:#64748B;margin-top:2px">${s.l}</div></div>`).join('');
 
-  const evHtml=todayEvents.length===0?`<p style="color:#94A3B8;font-size:13px;font-style:italic">Sin eventos registrados para hoy.</p>`:
-    todayEvents.map(e=>{const c=catFor(e.category);return`<div class="list-row" data-action="edit-event" data-id="${e.id}"><div style="width:4px;align-self:stretch;border-radius:4px;background:${c.color};flex-shrink:0"></div><div style="flex:1"><div style="font-size:13px;font-weight:600">${escH(e.title)}</div></div>${e.responsible?memberAvatar(e.responsible):''} ${catBadge(e.category)}</div>`;}).join('');
+  const dirItems = [
+    { id:'direccion', icon:'&#127963;', label:'Vista Direccion' },
+    { id:'equipo',    icon:'&#128101;', label:'Equipo' },
+  ];
 
-  const odHtml=overdue.length===0&&blocked.length===0?`<p style="color:#059669;font-size:13px">✓ Sin tareas bloqueadas o vencidas</p>`:[...overdue.map(t=>`<div class="list-row" data-action="edit-task" data-id="${t.id}" style="border-left:3px solid #DC2626"><div style="flex:1"><div style="font-size:13px;font-weight:600;color:#1E293B">${escH(t.title)}</div><div style="font-size:11px;color:#DC2626;margin-top:2px">📅 Venció ${t.deadline}</div></div>${t.responsible?memberAvatar(t.responsible):''} ${statusBadge(t.status)}</div>`),...blocked.map(t=>`<div class="list-row" data-action="edit-task" data-id="${t.id}" style="border-left:3px solid #DC2626"><div style="flex:1"><div style="font-size:13px;font-weight:600;color:#1E293B">${escH(t.title)}</div></div>${t.responsible?memberAvatar(t.responsible):''} ${statusBadge('bloqueado')}</div>`)].join('');
+  const sysItems = [
+    { id:'configuracion', icon:'&#9881;', label:'Configuracion' },
+  ];
 
-  const riskHtml=activeRisks.length===0?`<p style="color:#059669;font-size:13px">✓ Sin riesgos activos este mes</p>`:
-    activeRisks.map(r=>`<div class="list-row" data-action="edit-risk" data-id="${r.id}"><div style="font-size:18px">⚠️</div><div style="flex:1"><div style="font-size:13px;font-weight:600">${escH(r.title)}</div>${r.mitigation?`<div style="font-size:11px;color:#64748B;margin-top:2px">Plan: ${escH(r.mitigation.slice(0,60))}${r.mitigation.length>60?'...':''}</div>`:''}</div>${riskBadge(r.status)}</div>`).join('');
+  let html = '<div class="nav-section">Principal</div>';
+  items.forEach(it => { html += navBtn(it); });
 
-  const msHtml=upcomingMs.length===0?`<p style="color:#94A3B8;font-size:13px;font-style:italic">Sin hitos pendientes este mes.</p>`:
-    upcomingMs.map(m=>`<div class="list-row" data-action="edit-milestone" data-id="${m.id}"><div style="font-size:18px">🎯</div><div style="flex:1"><div style="font-size:13px;font-weight:600">${escH(m.title)}</div></div>${m.responsible?memberAvatar(m.responsible):''} ${statusBadge(m.status||'pendiente')}</div>`).join('');
+  if (CU.isDir) {
+    html += '<div class="nav-section">Direccion</div>';
+    dirItems.forEach(it => { html += navBtn(it); });
+  }
 
-  return`<div style="display:flex;gap:10px;margin-bottom:20px">${statBar}</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-    <div>
-      <div class="card" style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;color:#1E293B;margin-bottom:12px;display:flex;align-items:center;gap:6px"><span>📅</span> Eventos de Hoy</div>${evHtml}</div>
-      <div class="card"><div style="font-size:13px;font-weight:700;color:#1E293B;margin-bottom:12px;display:flex;align-items:center;gap:6px"><span>🎯</span> Hitos Pendientes del Mes</div>${msHtml}</div>
-    </div>
-    <div>
-      <div class="card" style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;color:#DC2626;margin-bottom:12px;display:flex;align-items:center;gap:6px"><span>🚨</span> Tareas Vencidas / Bloqueadas</div>${odHtml}</div>
-      <div class="card"><div style="font-size:13px;font-weight:700;color:#D97706;margin-bottom:12px;display:flex;align-items:center;gap:6px"><span>⚠️</span> Riesgos Activos</div>${riskHtml}</div>
-    </div>
+  html += '<div class="nav-section">Sistema</div>';
+  sysItems.forEach(it => { html += navBtn(it); });
+
+  document.getElementById('sb-nav').innerHTML = html;
+  goTo('calendario');
+}
+
+function navBtn({ id, icon, label }) {
+  return `<div class="nav-item" id="nav-${id}" onclick="goTo('${id}')">
+    <span class="nav-icon">${icon}</span>
+    <span>${label}</span>
   </div>`;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// VIEW: CALENDAR
-// ═══════════════════════════════════════════════════════════════
-function viewCalendar(){
-  const md=mdata();
-  const dim=new Date(S.year,S.month,0).getDate();
-  const fd=new Date(S.year,S.month-1,1).getDay();
-  const today=new Date();
-  const isCur=today.getMonth()+1===S.month&&today.getFullYear()===S.year;
-  const byDay={};
+function goTo(id) {
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById('nav-' + id);
+  if (el) el.classList.add('active');
+  SEC = id;
 
-  // Si estamos en CEUSS, agregamos eventos de TODAS las areas
-  const isCEUSS = (S.area === 'ceuss' || S.area === 'area0');
-  if(isCEUSS){
-    S.data.areas.forEach(function(area){
-      if(area.id === S.area) return; // CEUSS propio lo agregamos despues
-      var amd = S.data.areaData[area.id];
-      if(!amd) return;
-      var amkey = mkey();
-      var monthData = amd.months && amd.months[amkey];
-      if(!monthData) return;
-      (monthData.events||[]).forEach(function(e){
-        var d=parseInt(e.day);
-        if(!byDay[d])byDay[d]=[];
-        // Tag con area para mostrar de donde viene
-        byDay[d].push(Object.assign({},e,{_areaName:area.name,_areaColor:area.color||'#64748B',_fromArea:area.id}));
-      });
-    });
-  }
-  // Eventos del area actual (siempre)
-  (md.events||[]).forEach(e=>{const d=parseInt(e.day);if(!byDay[d])byDay[d]=[];byDay[d].push(e);});
-  // Banner informativo para CEUSS
-  const isCEUSS2 = (S.area === 'ceuss' || S.area === 'area0');
-  const ms=md.milestones||[];
-  const msHtml=ms.length===0?`<p style="color:#94A3B8;font-size:13px;font-style:italic;text-align:center;padding:8px 0">Sin hitos definidos. <button class="btn btn-ghost btn-sm" data-action="add-milestone">+ Agregar</button></p>`:
-    ms.map(m=>`<div data-action="edit-milestone" data-id="${m.id}" style="cursor:pointer;background:#F8FAFF;border:1.5px solid #C7D2FE;border-radius:9px;padding:9px 13px;display:flex;justify-content:space-between;align-items:center;gap:8px"><div><div style="font-size:13px;font-weight:600;color:#1E293B">${escH(m.title)}</div>${m.responsible?`<div style="font-size:11px;color:#64748B;margin-top:2px">${memberAvatar(m.responsible,18)} <span style="vertical-align:middle">${escH(memberName(m.responsible))}</span></div>`:''}</div>${statusBadge(m.status||'pendiente')}</div>`).join('');
-  let cells='';
-  for(let b=0;b<fd;b++)cells+=`<div style="min-height:82px;background:#F5F7FA;border-radius:6px"></div>`;
-  for(let d=1;d<=dim;d++){
-    const evs=byDay[d]||[];const isToday=isCur&&today.getDate()===d;
-    const chips=evs.slice(0,3).map(function(ev){
-      const c=catFor(ev.category);
-      if(ev._fromArea){
-        const ac=ev._areaColor||'#64748B';
-        return`<div class="cal-chip" style="background:${ac}22;border-left-color:${ac};color:${ac};cursor:default" title="${escH(ev._areaName)}: ${escH(ev.title)}"><span style='font-size:9px;opacity:.8'>[${escH(ev._areaName.slice(0,3))}]</span> ${escH(ev.title)}</div>`;
-      }
-      return`<div class="cal-chip" data-action="edit-event" data-id="${ev.id}" style="background:${c.bg};border-left-color:${c.color};color:${c.color}">${escH(ev.title)}</div>`;
-    }).join('');
-    const more=evs.length>3?`<div style="font-size:9px;color:#94A3B8">+${evs.length-3} más</div>`:'';
-    cells+=`<div class="cal-cell${isToday?' today':''}" data-action="add-event" data-day="${d}"><span style="font-size:11px;font-weight:${isToday?800:600};color:${isToday?'#16213E':'#64748B'};display:block;margin-bottom:3px">${d}</span>${chips}${more}</div>`;
-  }
-  const legend=CATS.map(c=>`<div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:${c.color};flex-shrink:0"></div><span style="font-size:11px;color:#64748B">${c.label}</span></div>`).join('');
-
-  // Leyenda de areas (solo en CEUSS)
-  const areaLegend = isCEUSS2 ? '<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-size:12px;font-weight:700;color:#1E40AF">Vista consolidada CEUSS:</span>' +
-    S.data.areas.filter(a=>a.id!==S.area&&a.id!=='area0').map(a=>`<span style="display:flex;align-items:center;gap:5px;font-size:12px;color:#374151"><div style="width:9px;height:9px;border-radius:2px;background:${a.color||'#64748B'}"></div>${escH(a.name)}</span>`).join('') +
-    '</div>' : '';
-
-  return`${areaLegend}<div class="card" style="margin-bottom:16px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px">
-      <div style="display:flex;align-items:center;gap:7px"><span style="font-size:16px">🎯</span><h3 style="font-size:14px;font-weight:700;color:#1E293B">Hitos Estratégicos</h3><span style="font-size:11px;color:#94A3B8;font-style:italic">Lo que sí o sí debe ocurrir</span></div>
-      <button class="btn btn-primary btn-sm" data-action="add-milestone">+ Hito</button>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px">${msHtml}</div>
-  </div>
-  <div class="card">
-    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:7px">${DAYS.map(d=>`<div style="text-align:center;font-size:9px;font-weight:700;color:#94A3B8;padding:3px 0;text-transform:uppercase;letter-spacing:.5px">${d}</div>`).join('')}</div>
-    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">${cells}</div>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:11px">${legend}</div>`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// VIEW: TAREAS
-// ═══════════════════════════════════════════════════════════════
-function viewTareas(){
-  const md=mdata();const tasks=md.tasks||[];const f=S.taskFilter;
-  const counts={};Object.keys(STATUS).forEach(s=>{counts[s]=tasks.filter(t=>t.status===s).length;});
-  const filtered=f==='all'?tasks:tasks.filter(t=>t.status===f);
-  const pct=tasks.length>0?Math.round(counts.completado/tasks.length*100):0;
-  const sc=[`<div data-action="filter-tasks" data-filter="all" style="cursor:pointer;background:${f==='all'?'#DBEAFE':'#F8FAFC'};border-radius:9px;border:${f==='all'?'1.5px solid #1D4ED8':'1px solid #E2E8F0'};padding:12px 14px"><div style="font-size:20px;font-weight:800;color:#1A2A42">${tasks.length}</div><div style="font-size:11px;color:#94A3B8;margin-top:2px">Total</div></div>`,
-    ...Object.entries(STATUS).map(([k,v])=>`<div data-action="filter-tasks" data-filter="${k}" style="cursor:pointer;background:${f===k?v.bg:'#F8FAFC'};border-radius:9px;border:${f===k?`1.5px solid ${v.color}`:'1px solid #E2E8F0'};padding:12px 14px"><div style="font-size:20px;font-weight:800;color:${v.color}">${counts[k]||0}</div><div style="font-size:11px;color:#64748B;margin-top:2px">${v.label}</div></div>`)].join('');
-  const pb=tasks.length>0?`<div class="card-sm" style="display:flex;align-items:center;gap:14px;margin-bottom:14px"><span style="font-size:12px;color:#64748B;white-space:nowrap">Avance mes:</span>${pbar(pct,pct>=75?'#059669':pct>=40?'#D97706':'#DC2626').replace('progress-track','progress-track" style="flex:1')}<span style="font-size:14px;font-weight:800;color:${pct>=75?'#059669':pct>=40?'#D97706':'#DC2626'};min-width:35px">${pct}%</span></div>`:'';
-  const rows=filtered.length===0?`<div class="empty-box"><p style="color:#94A3B8;font-size:14px">Sin tareas${f!=='all'?` con estado "${STATUS[f]?.label}"`:' este mes'}</p></div>`:
-    filtered.map(t=>{const cat=catFor(t.category);const today=new Date().toISOString().slice(0,10);const overdue=t.deadline&&t.deadline<today&&t.status!=='completado';
-    return`<div class="list-row" data-action="edit-task" data-id="${t.id}" style="${overdue?'border-left:3px solid #DC2626':''}">
-      <div style="width:4px;align-self:stretch;border-radius:4px;background:${cat.color};flex-shrink:0"></div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;color:#1E293B">${escH(t.title)}</div>
-        ${t.description?`<div style="font-size:11px;color:#64748B;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escH(t.description)}</div>`:''}
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">
-        ${t.deadline?`<span style="font-size:11px;color:${overdue?'#DC2626':'#94A3B8'}">📅${t.deadline}</span>`:''}
-        ${t.responsible?`<span style="font-size:11px;color:#64748B;display:flex;align-items:center;gap:3px">${memberAvatar(t.responsible,20)}<span>${escH(memberName(t.responsible))}</span></span>`:''}
-        ${catBadge(t.category)} ${statusBadge(t.status||'pendiente')} ${prioBadge(t.priority||'media')}
-      </div>
-    </div>`;}).join('');
-  return`<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px">${sc}</div>
-    ${pb}
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <h3 style="font-size:14px;font-weight:700;color:#1E293B">${f==='all'?'Todas las tareas':'Tareas: '+STATUS[f]?.label}</h3>
-      <button class="btn btn-primary btn-sm" data-action="add-task">+ Nueva Tarea</button>
-    </div>${rows}`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// VIEW: KPIs
-// ═══════════════════════════════════════════════════════════════
-function viewKpis(){
-  const kpis=mdata().kpis||[];
-  if(kpis.length===0)return`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><h3 style="font-size:17px;font-weight:700">Panel de KPIs</h3><button class="btn btn-primary btn-sm" data-action="add-kpi">+ Agregar KPI</button></div><div class="empty-box"><div style="font-size:36px;margin-bottom:12px">📊</div><h4 style="color:#475569;margin-bottom:8px">Sin KPIs definidos</h4><button class="btn btn-primary btn-sm" data-action="add-kpi">+ Agregar primer KPI</button></div>`;
-  const cards=kpis.map(k=>{const pct=k.target>0?Math.min(100,Math.round(k.current/k.target*100)):0;const c=pct>=80?'#059669':pct>=50?'#D97706':'#DC2626';
-    return`<div class="card" style="cursor:pointer;transition:transform .15s" data-action="edit-kpi" data-id="${k.id}" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:11px">
-        <div><div style="font-size:13px;font-weight:700;color:#1E293B">${escH(k.name)}</div>${k.description?`<div style="font-size:11px;color:#94A3B8;margin-top:2px">${escH(k.description)}</div>`:''}</div>
-        <div style="font-size:19px;font-weight:900;color:${c}">${pct}%</div>
-      </div>
-      <div style="display:flex;align-items:baseline;gap:5px;margin-bottom:9px">
-        <span style="font-size:26px;font-weight:800;color:#1E293B">${k.current}</span>
-        <span style="font-size:12px;color:#64748B">${k.unit||''}</span>
-        <span style="font-size:11px;color:#94A3B8">/ ${k.target} meta</span>
-      </div>
-      ${pbar(pct,c)}
-      ${k.notes?`<div style="font-size:11px;color:#94A3B8;margin-top:8px;font-style:italic">${escH(k.notes)}</div>`:''}
-    </div>`;}).join('');
-  return`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px"><h3 style="font-size:17px;font-weight:700">Panel de KPIs</h3><button class="btn btn-primary btn-sm" data-action="add-kpi">+ KPI</button></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">${cards}</div>`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// VIEW: RIESGOS
-// ═══════════════════════════════════════════════════════════════
-function viewRiesgos(){
-  const risks=mdata().risks||[];
-  const ic={bajo:'#059669',medio:'#D97706',alto:'#DC2626','crítico':'#7C2D12'};
-  const rows=risks.length===0?`<div class="empty-box"><div style="font-size:32px;margin-bottom:10px">✅</div><p style="color:#64748B">Sin riesgos registrados este mes</p></div>`:
-    risks.map(r=>`<div class="list-row" data-action="edit-risk" data-id="${r.id}">
-      <div style="font-size:18px">⚠️</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:#1E293B;margin-bottom:3px">${escH(r.title)}</div>
-        ${r.description?`<div style="font-size:12px;color:#64748B">${escH(r.description)}</div>`:''}
-        ${r.mitigation?`<div style="margin-top:6px;padding:6px 10px;background:#F0FDF4;border-radius:7px;font-size:11px;color:#065F46"><b>Mitigación:</b> ${escH(r.mitigation)}</div>`:''}
-      </div>
-      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex-shrink:0">
-        ${r.impact?badge('Impacto '+r.impact,ic[r.impact]||'#DC2626','#FEF2F2'):''} ${riskBadge(r.status||'activo')}
-        ${r.responsible?`<span style="font-size:11px;color:#64748B;display:flex;align-items:center;gap:4px">${memberAvatar(r.responsible,18)}<span>${escH(memberName(r.responsible))}</span></span>`:''}
-      </div>
-    </div>`).join('');
-  return`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px"><h3 style="font-size:17px;font-weight:700">Riesgos y Alertas</h3><button class="btn btn-primary btn-sm" data-action="add-risk">+ Agregar</button></div>${rows}`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// VIEW: DECISIONES
-// ═══════════════════════════════════════════════════════════════
-function viewDecisiones(){
-  const decs=mdata().decisions||[];
-  const tip=`<div style="background:#FFF8F0;border:1px solid #FED7AA;border-radius:10px;padding:11px 15px;margin-bottom:18px;display:flex;gap:10px;align-items:flex-start"><span style="font-size:16px">💡</span><p style="font-size:12px;color:#92400E;line-height:1.6">Registra qué se decidió, por qué y quién lo autorizó. Elimina el <em>"yo no sabía que habíamos acordado eso"</em> y facilita la evaluación retroactiva.</p></div>`;
-  const rows=decs.length===0?`<div class="empty-box"><div style="font-size:32px;margin-bottom:10px">📌</div><h4 style="color:#475569;margin-bottom:6px">Sin decisiones registradas</h4><button class="btn btn-primary btn-sm" data-action="add-decision">+ Registrar primera decisión</button></div>`:
-    decs.map(d=>{const dt=DEC_T[d.type]||DEC_T.operativa;return`<div class="list-row" data-action="edit-decision" data-id="${d.id}" style="align-items:flex-start">
-      <div style="width:4px;align-self:stretch;border-radius:4px;background:${dt.color};flex-shrink:0"></div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:#1E293B;margin-bottom:4px">${escH(d.title)}</div>
-        ${d.context?`<div style="font-size:12px;color:#64748B;margin-bottom:5px">${escH(d.context)}</div>`:''}
-        ${d.rationale?`<div style="background:#F8FAFF;border-radius:7px;padding:7px 11px;font-size:11px;color:#475569;margin-bottom:5px"><b style="color:#1E293B">Criterio:</b> ${escH(d.rationale)}</div>`:''}
-        ${d.impact?`<div style="font-size:11px;color:#64748B"><b>Impacto:</b> ${escH(d.impact)}</div>`:''}
-        ${d.followUp?`<div style="font-size:11px;color:#D97706;margin-top:4px">↩ Seguimiento: ${escH(d.followUp)}</div>`:''}
-      </div>
-      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex-shrink:0">
-        ${decBadge(d.type)}
-        ${d.decisionDate?`<span style="font-size:10px;color:#94A3B8">📅${d.decisionDate}</span>`:''}
-        ${d.decidedBy?`<span style="font-size:11px;color:#64748B;display:flex;align-items:center;gap:4px">${memberAvatar(d.decidedBy,18)}<span>${escH(memberName(d.decidedBy))}</span></span>`:''}
-      </div>
-    </div>`;}).join('');
-  return`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div><h3 style="font-size:17px;font-weight:700">Registro de Decisiones</h3><p style="font-size:12px;color:#64748B;margin-top:2px">${MONTHS[S.month-1]} ${S.year} · ${curArea()?.name}</p></div><button class="btn btn-primary btn-sm" data-action="add-decision">+ Registrar</button></div>${tip}${rows}`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// VIEW: RESUMEN
-// ═══════════════════════════════════════════════════════════════
-function viewResumen(){
-  const md=mdata();const notes=md.notes||{};
-  const tasks=md.tasks||[];const kpis=md.kpis||[];const risks=md.risks||[];const ms=md.milestones||[];const decs=md.decisions||[];
-  const ct=tasks.filter(t=>t.status==='completado').length;
-  const am=ms.filter(m=>m.status==='completado').length;
-  const ar=risks.filter(r=>r.status==='activo').length;
-  const ka=kpis.length>0?Math.round(kpis.reduce((a,k)=>a+(k.target>0?Math.min(100,k.current/k.target*100):0),0)/kpis.length):null;
-  const stats=[
-    {l:'Tareas completadas',v:`${ct}/${tasks.length}`,c:'#059669',bg:'#F0FDF4'},
-    {l:'Hitos logrados',v:`${am}/${ms.length}`,c:'#6D28D9',bg:'#EDE9FE'},
-    {l:'KPI promedio',v:ka!==null?`${ka}%`:'—',c:'#1D4ED8',bg:'#DBEAFE'},
-    {l:'Riesgos activos',v:ar,c:ar>0?'#DC2626':'#059669',bg:ar>0?'#FEF2F2':'#F0FDF4'},
-    {l:'Decisiones',v:decs.length,c:'#9F1239',bg:'#FFE4E6'},
-  ];
-  const sh=stats.map(s=>`<div style="background:${s.bg};border-radius:10px;padding:14px 16px"><div style="font-size:22px;font-weight:800;color:${s.c}">${s.v}</div><div style="font-size:11px;color:#64748B;margin-top:2px">${s.l}</div></div>`).join('');
-  const nf=[
-    {key:'objectives',label:'🎯 Objetivos del Mes',ph:'Define los objetivos principales...',c:'#1D4ED8',bg:'#EFF6FF'},
-    {key:'achievements',label:'✅ Logros y Avances',ph:'Qué se logró, hitos alcanzados...',c:'#059669',bg:'#F0FDF4'},
-    {key:'pending',label:'⏳ Pendientes Próximo Mes',ph:'Qué queda pendiente o se arrastra...',c:'#D97706',bg:'#FFFBEB'},
-    {key:'learnings',label:'💡 Aprendizajes y Mejoras',ph:'Qué mejorar, qué aprendimos...',c:'#6D28D9',bg:'#EDE9FE'},
-  ];
-  const nh=nf.map(f=>`<div class="card"><div style="font-size:11px;font-weight:700;color:${f.c};margin-bottom:9px;background:${f.bg};padding:4px 10px;border-radius:6px;display:inline-block">${f.label}</div><textarea style="width:100%;border:none;outline:none;resize:vertical;font-size:13px;color:#374151;line-height:1.65;font-family:inherit;background:transparent" data-action="update-note" data-key="${f.key}" rows="4" placeholder="${f.ph}">${escH(notes[f.key]||'')}</textarea></div>`).join('');
-  return`<h3 style="font-size:17px;font-weight:700;margin-bottom:3px">Resumen ${MONTHS[S.month-1]} ${S.year}</h3><p style="font-size:12px;color:#64748B;margin-bottom:16px">${curArea()?.name}</p><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:18px">${sh}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">${nh}</div>`;
-}
-function bindNotes(){
-  document.querySelectorAll('[data-action="update-note"]').forEach(el=>{
-    el.addEventListener('input',()=>{const k=el.dataset.key;const md=mdata();if(!md.notes)md.notes={};md.notes[k]=el.value;save();});
-  });
-}
-
-// ═══════════════════════════════════════════════════════════════
-// VIEW: HISTORIAL ANUAL
-// ═══════════════════════════════════════════════════════════════
-function viewHistorial(){
-  const allKpiNames={};
-  for(let m=1;m<=12;m++){const md=S.data.months?S.data.months[mkey(m,S.year)]:aData().months[mkey(m,S.year)];if(md&&md.kpis)md.kpis.forEach(k=>{allKpiNames[k.name]=k.unit||'';});}
-  // Fix: use aData()
-  const adm=aData().months||{};
-  const allKN={};for(let m=1;m<=12;m++){const md=adm[mkey(m,S.year)];if(md&&md.kpis)md.kpis.forEach(k=>{allKN[k.name]=k.unit||'';});}
-  const kpiList=Object.keys(allKN);
-  const ms2=[];
-  for(let m=1;m<=12;m++){
-    const md=adm[mkey(m,S.year)];
-    if(!md){ms2.push({m,empty:true});continue;}
-    const tasks=md.tasks||[];const kpis=md.kpis||[];const risks=md.risks||[];
-    const ct=tasks.filter(t=>t.status==='completado').length;const tot=tasks.length;
-    const pt=tot>0?Math.round(ct/tot*100):null;
-    const ka=kpis.length>0?Math.round(kpis.reduce((a,k)=>a+(k.target>0?Math.min(100,k.current/k.target*100):0),0)/kpis.length):null;
-    ms2.push({m,empty:false,pt,ka,ct,tot,ar:risks.filter(r=>r.status==='activo').length,kpis,tasks});
-  }
-  const hm=ms2.map(s=>{
-    if(s.empty||s.pt===null)return`<div style="flex:1;height:34px;background:#F1F5F9;border-radius:6px;display:flex;align-items:center;justify-content:center"><span style="font-size:9px;color:#CBD5E1">—</span></div>`;
-    const bg=s.pt>=80?'#DCFCE7':s.pt>=50?'#FEF3C7':'#FEE2E2';const c=s.pt>=80?'#15803D':s.pt>=50?'#92400E':'#B91C1C';
-    return`<div style="flex:1;height:34px;background:${bg};border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer" data-action="jump-month" data-m="${s.m}"><span style="font-size:11px;font-weight:800;color:${c}">${s.pt}%</span><span style="font-size:9px;color:${c};opacity:.7">${MS[s.m-1]}</span></div>`;
-  }).join('');
-
-  let kpiChart='';
-  if(kpiList.length>0){
-    const sk=S._histKpi||kpiList[0];
-    const ko=kpiList.map(n=>`<option value="${n}"${n===sk?' selected':''}>${n}</option>`).join('');
-    const kd=ms2.map(s=>{if(s.empty)return null;const kpi=(s.kpis||[]).find(k=>k.name===sk);return kpi?{m:s.m,v:kpi.current,t:kpi.target,u:kpi.unit,pct:kpi.target>0?Math.min(100,Math.round(kpi.current/kpi.target*100)):null}:null;});
-    const mx=Math.max(...kd.filter(Boolean).map(d=>d.v),1);
-    const bc=kd.map((d,i)=>{
-      if(!d)return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="flex:1;display:flex;align-items:flex-end;width:100%"><div style="width:100%;height:3px;background:#F1F5F9;border-radius:3px"></div></div><div style="font-size:9px;color:#CBD5E1">${MS[i]}</div></div>`;
-      const h=mx>0?Math.max(3,Math.round(d.v/mx*130)):3;const c=d.pct!==null?(d.pct>=80?'#16A34A':d.pct>=50?'#D97706':'#DC2626'):'#94A3B8';
-      return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer" data-action="jump-month" data-m="${d.m}"><div style="flex:1;display:flex;align-items:flex-end;width:100%"><div style="width:100%;height:${h}px;background:${c};border-radius:3px 3px 0 0"></div></div><div style="font-size:9px;color:#64748B">${MS[i]}</div><div style="font-size:10px;font-weight:700;color:${c}">${d.v}${d.u?' '+d.u:''}</div></div>`;
-    }).join('');
-    kpiChart=`<div class="card" style="margin-top:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div><h4 style="font-size:13px;font-weight:700">Evolución de KPI</h4></div><select id="hist-kpi-sel" class="form-select" style="width:200px;font-size:12px">${ko}</select></div><div style="display:flex;gap:5px;height:170px;align-items:flex-end;padding-bottom:3px">${bc}</div></div>`;
-  }
-
-  // All decisions of year
-  const allDecs=[];for(let m=1;m<=12;m++){const md=adm[mkey(m,S.year)];if(md&&md.decisions)md.decisions.forEach(d=>allDecs.push({...d,month:m}));}
-  const decTl=allDecs.length>0?`<div class="card" style="margin-top:16px"><h4 style="font-size:13px;font-weight:700;margin-bottom:12px">Todas las Decisiones ${S.year}</h4>${allDecs.map(d=>{const dt=DEC_T[d.type]||DEC_T.operativa;return`<div style="display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #F1F5F9"><div style="width:34px;height:34px;border-radius:9px;background:${dt.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:12px;font-weight:800;color:${dt.color}">${MS[d.month-1]}</span></div><div style="flex:1"><div style="font-size:13px;font-weight:600">${escH(d.title)}</div>${d.rationale?`<div style="font-size:11px;color:#64748B">${escH(d.rationale)}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">${decBadge(d.type)}${d.decidedBy?memberAvatar(d.decidedBy,20):''}</div></div>`;}).join('')}</div>`:'' ;
-
-  const tr=ms2.map(s=>{
-    if(s.empty)return`<tr><td style="padding:8px 11px;font-size:13px;font-weight:600">${MONTHS[s.m-1]}</td><td colspan="4" style="padding:8px 11px;font-size:12px;color:#CBD5E1;text-align:center">Sin datos</td></tr>`;
-    const pc=s.pt!==null?(s.pt>=75?'#059669':s.pt>=40?'#D97706':'#DC2626'):'#94A3B8';
-    const kc=s.ka!==null?(s.ka>=80?'#059669':s.ka>=50?'#D97706':'#DC2626'):'#94A3B8';
-    return`<tr style="cursor:pointer;border-bottom:1px solid #F8FAFC" data-action="jump-month" data-m="${s.m}"><td style="padding:8px 11px;font-size:13px;font-weight:600;color:#1E293B">${MONTHS[s.m-1]}</td><td style="padding:8px 11px;font-size:13px;text-align:center;color:${pc};font-weight:700">${s.pt!==null?s.pt+'%':'—'}</td><td style="padding:8px 11px;font-size:13px;text-align:center;color:${kc};font-weight:700">${s.ka!==null?s.ka+'%':'—'}</td><td style="padding:8px 11px;font-size:12px;text-align:center;color:#64748B">${s.ct}/${s.tot}</td><td style="padding:8px 11px;text-align:center">${s.ar>0?badge(s.ar+' activo'+(s.ar!==1?'s':''),'#DC2626','#FEF2F2'):badge('OK','#059669','#F0FDF4')}</td></tr>`;
-  }).join('');
-
-  return`<div style="margin-bottom:18px"><h3 style="font-size:17px;font-weight:700">Historial Anual ${S.year}</h3><p style="font-size:12px;color:#64748B;margin-top:3px">Haz clic en cualquier mes para ir a él · ${curArea()?.name}</p></div>
-  <div class="card"><h4 style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:9px;text-transform:uppercase;letter-spacing:.5px">Avance de Tareas por Mes</h4><div style="display:flex;gap:4px">${hm}</div></div>
-  ${kpiChart}
-  <div class="card" style="margin-top:16px"><h4 style="font-size:13px;font-weight:700;margin-bottom:12px">Tabla Anual</h4>
-    <table style="width:100%;border-collapse:collapse"><thead><tr style="border-bottom:2px solid #F1F5F9"><th style="padding:7px 11px;font-size:10px;font-weight:700;color:#94A3B8;text-align:left;text-transform:uppercase">Mes</th><th style="padding:7px 11px;font-size:10px;font-weight:700;color:#94A3B8;text-align:center;text-transform:uppercase">Tareas</th><th style="padding:7px 11px;font-size:10px;font-weight:700;color:#94A3B8;text-align:center;text-transform:uppercase">KPI</th><th style="padding:7px 11px;font-size:10px;font-weight:700;color:#94A3B8;text-align:center;text-transform:uppercase">Completas</th><th style="padding:7px 11px;font-size:10px;font-weight:700;color:#94A3B8;text-align:center;text-transform:uppercase">Riesgos</th></tr></thead><tbody>${tr}</tbody></table>
-  </div>${decTl}`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// VIEW: CARGA DEL EQUIPO
-// ═══════════════════════════════════════════════════════════════
-function viewCarga(){
-  const mems=members();
-  if(mems.length===0)return`<h3 style="font-size:17px;font-weight:700;margin-bottom:16px">Carga del Equipo</h3><div class="empty-box"><h4 style="color:#475569;margin-bottom:6px">Sin integrantes</h4><button class="btn btn-primary btn-sm" data-tab="equipo">Ir a Equipo</button></div>`;
-  const pm=S.month===1?12:S.month-1;const py=S.month===1?S.year-1:S.year;
-  const nm=S.month===12?1:S.month+1;const ny=S.month===12?S.year+1:S.year;
-  const rmths=[{m:pm,y:py,l:MS[pm-1]},{m:S.month,y:S.year,l:MS[S.month-1]},{m:nm,y:ny,l:MS[nm-1]}];
-  const stats=mems.map((mem,mi)=>{
-    const c=MEM_COLS[mi%MEM_COLS.length];
-    const mthd=rmths.map(({m,y,l})=>{
-      const md=aData().months[mkey(m,y)]||{tasks:[]};
-      const at=(md.tasks||[]).filter(t=>t.responsible===mem.initial);
-      return{l,total:at.length,done:at.filter(t=>t.status==='completado').length,blk:at.filter(t=>t.status==='bloqueado').length,tasks:at};
-    });
-    const cur=mthd[1];
-    const evs=(mdata().events||[]).filter(e=>e.responsible===mem.initial);
-    const rks=(mdata().risks||[]).filter(r=>r.responsible===mem.initial);
-    const dcs=(mdata().decisions||[]).filter(d=>d.decidedBy===mem.initial);
-    return{mem,c,mthd,cur,evs,rks,dcs};
-  });
-  stats.sort((a,b)=>(b.cur.total||0)-(a.cur.total||0));
-  const maxT=Math.max(...stats.map(s=>s.cur.total),1);
-  const cards=stats.map(s=>{
-    const lpct=Math.round(s.cur.total/maxT*100);
-    const lc=lpct>=80?'#DC2626':lpct>=50?'#D97706':'#059669';
-    const lbg=lpct>=80?'#FEF2F2':lpct>=50?'#FEF3C7':'#F0FDF4';
-    const ll=lpct>=80?'Alta':lpct>=50?'Media':'Baja';
-    const dpct=s.cur.total>0?Math.round(s.cur.done/s.cur.total*100):0;
-    const trend=s.mthd.map((md,i)=>{const ic=i===1;return`<div style="border:${ic?'1.5px solid #BFDBFE':'1px solid #F1F5F9'};background:${ic?'#EFF6FF':'#F8FAFC'};border-radius:6px;padding:6px 8px;text-align:center;flex:1"><div style="font-size:9px;color:#94A3B8;font-weight:600">${md.l}</div><div style="font-size:15px;font-weight:800;color:${ic?'#1A2A42':'#64748B'}">${md.total}</div><div style="font-size:9px;color:#94A3B8">${md.done}✓</div></div>`;}).join('');
-    const pend=(s.cur.tasks||[]).filter(t=>t.status!=='completado').slice(0,3);
-    const ph=pend.length>0?`<div style="border-top:1px solid #F1F5F9;padding-top:9px;margin-top:9px">${pend.map(t=>`<div style="display:flex;align-items:center;gap:7px;padding:3px 0;border-bottom:1px solid #F8FAFC"><div style="width:6px;height:6px;border-radius:2px;background:${catFor(t.category).color};flex-shrink:0"></div><span style="font-size:11px;color:#374151;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escH(t.title)}</span>${statusBadge(t.status)}</div>`).join('')}${s.cur.total>3?`<div style="font-size:10px;color:#94A3B8;margin-top:3px">+${s.cur.total-3} más</div>`:''}</div>`:'';
-    return`<div class="card" style="border-top:3px solid ${s.c}">
-      <div style="display:flex;align-items:center;gap:11px;margin-bottom:13px">
-        ${memberAvatar(s.mem.initial,40)}
-        <div style="flex:1"><div style="font-size:14px;font-weight:700">${escH(s.mem.name)}</div><div style="font-size:11px;color:#64748B">${escH(s.mem.role||'')}</div></div>
-        <div style="text-align:right"><div style="font-size:11px;font-weight:700;color:${lc};background:${lbg};padding:3px 8px;border-radius:100px;display:inline-block">Carga ${ll}</div><div style="font-size:10px;color:#94A3B8;margin-top:2px">${dpct}% completado</div></div>
-      </div>
-      <div style="margin-bottom:10px">${pbar(dpct,s.c)}</div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:11px">
-        ${badge(s.cur.total+' tarea'+(s.cur.total!==1?'s':''),'#1A2A42','#EFF6FF')}
-        ${s.evs.length>0?badge(s.evs.length+' actividad'+(s.evs.length!==1?'es':''),'#065F46','#D1FAE5'):''}
-        ${s.rks.length>0?badge(s.rks.length+' riesgo'+(s.rks.length!==1?'s':''),'#C2410C','#FFEDD5'):''}
-        ${s.cur.blk>0?badge('⛔ '+s.cur.blk+' bloqueada'+(s.cur.blk!==1?'s':''),'#DC2626','#FEF2F2'):''}
-      </div>
-      <div style="display:flex;gap:5px">${trend}</div>
-      ${ph}
-    </div>`;
-  }).join('');
-  const tot=stats.reduce((a,s)=>a+s.cur.total,0);
-  const td=stats.reduce((a,s)=>a+s.cur.done,0);
-  const tb=stats.reduce((a,s)=>a+s.cur.blk,0);
-  const ua=(mdata().tasks||[]).filter(t=>!t.responsible).length;
-  return`<div style="margin-bottom:18px"><h3 style="font-size:17px;font-weight:700">Carga del Equipo</h3><p style="font-size:12px;color:#64748B;margin-top:3px">${MONTHS[S.month-1]} ${S.year} · ${curArea()?.name}</p></div>
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:18px">
-    <div class="card-stat"><div style="font-size:20px;font-weight:800;color:#1D4ED8">${tot}</div><div style="font-size:11px;color:#64748B;margin-top:2px">Total asignadas</div></div>
-    <div class="card-stat"><div style="font-size:20px;font-weight:800;color:#059669">${td}</div><div style="font-size:11px;color:#64748B;margin-top:2px">Completadas</div></div>
-    <div class="card-stat"><div style="font-size:20px;font-weight:800;color:#DC2626">${tb}</div><div style="font-size:11px;color:#64748B;margin-top:2px">Bloqueadas</div></div>
-    <div class="card-stat"><div style="font-size:20px;font-weight:800;color:#D97706">${ua}</div><div style="font-size:11px;color:#64748B;margin-top:2px">Sin asignar</div></div>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px">${cards}</div>`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// VIEW: VISTA DIRECCIÓN (multi-área consolidado)
-// ═══════════════════════════════════════════════════════════════
-function viewDireccion(){
-  const areas=S.data.areas;
-  const aCards=areas.map((area,i)=>{
-    const col=area.color||AREA_COLS[i%AREA_COLS.length];
-    const ad=S.data.areaData[area.id];
-    const md=ad?.months?.[mkey()]||{tasks:[],kpis:[],risks:[],milestones:[],decisions:[]};
-    const tasks=md.tasks||[];const kpis=md.kpis||[];const risks=md.risks||[];const ms=md.milestones||[];
-    const ct=tasks.filter(t=>t.status==='completado').length;
-    const pct=tasks.length>0?Math.round(ct/tasks.length*100):null;
-    const ka=kpis.length>0?Math.round(kpis.reduce((a,k)=>a+(k.target>0?Math.min(100,k.current/k.target*100):0),0)/kpis.length):null;
-    const ar=risks.filter(r=>r.status==='activo').length;
-    const hi=ms.filter(m=>m.status!=='completado').length;
-    const st=areaStatus(area.id);
-    const stColor=SEM_COLORS[st];
-    const pctC=pct!==null?(pct>=75?'#059669':pct>=40?'#D97706':'#DC2626'):'#94A3B8';
-    const kaC=ka!==null?(ka>=80?'#059669':ka>=50?'#D97706':'#DC2626'):'#94A3B8';
-    return`<div class="card" style="border-top:3px solid ${col};cursor:pointer" data-action="go-area" data-area="${area.id}">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div style="display:flex;align-items:center;gap:9px">
-          <div style="width:32px;height:32px;border-radius:10px;background:${col};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff">${area.name.charAt(0)}</div>
-          <div><div style="font-size:14px;font-weight:700;color:#1E293B">${escH(area.name)}</div><div style="font-size:11px;color:#64748B">${(ad?.teamMembers||[]).length} integrante${(ad?.teamMembers||[]).length!==1?'s':''}</div></div>
-        </div>
-        <div style="width:10px;height:10px;border-radius:50%;background:${stColor}"></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-        <div style="background:#F8FAFC;border-radius:8px;padding:10px 12px"><div style="font-size:18px;font-weight:800;color:${pctC}">${pct!==null?pct+'%':'—'}</div><div style="font-size:10px;color:#64748B;margin-top:1px">Tareas</div></div>
-        <div style="background:#F8FAFC;border-radius:8px;padding:10px 12px"><div style="font-size:18px;font-weight:800;color:${kaC}">${ka!==null?ka+'%':'—'}</div><div style="font-size:10px;color:#64748B;margin-top:1px">KPI prom.</div></div>
-        <div style="background:#F8FAFC;border-radius:8px;padding:10px 12px"><div style="font-size:18px;font-weight:800;color:${ar>0?'#DC2626':'#059669'}">${ar}</div><div style="font-size:10px;color:#64748B;margin-top:1px">Riesgos activos</div></div>
-        <div style="background:#F8FAFC;border-radius:8px;padding:10px 12px"><div style="font-size:18px;font-weight:800;color:#6D28D9">${hi}</div><div style="font-size:10px;color:#64748B;margin-top:1px">Hitos pendientes</div></div>
-      </div>
-      ${pct!==null?pbar(pct,pctC):''}
-    </div>`;
-  }).join('');
-
-  // All active risks across areas
-  const globalRisks=[];
-  areas.forEach(area=>{
-    const md=S.data.areaData[area.id]?.months?.[mkey()]||{};
-    (md.risks||[]).filter(r=>r.status==='activo'&&(r.impact==='alto'||r.impact==='crítico')).forEach(r=>globalRisks.push({...r,areaName:area.name,areaColor:area.color}));
-  });
-  const riskAlert=globalRisks.length>0?`<div class="card" style="margin-top:18px;border-left:4px solid #DC2626"><h4 style="font-size:13px;font-weight:700;color:#DC2626;margin-bottom:12px">🚨 Riesgos Críticos / Altos (todas las áreas)</h4>${globalRisks.map(r=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F8FAFC"><div style="font-size:12px;font-weight:700;color:${r.areaColor||'#1A2A42'};background:#F1F5F9;padding:2px 8px;border-radius:6px;flex-shrink:0">${escH(r.areaName)}</div><div style="flex:1;font-size:13px;font-weight:600">${escH(r.title)}</div>${badge('Impacto '+r.impact,'#DC2626','#FEF2F2')}</div>`).join('')}</div>`:'' ;
-
-  return`<div style="margin-bottom:18px"><h3 style="font-size:17px;font-weight:700">Vista Dirección</h3><p style="font-size:12px;color:#64748B;margin-top:3px">${MONTHS[S.month-1]} ${S.year} · Todas las áreas · Haz clic en un área para ir a ella</p></div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">${aCards}</div>
-  ${riskAlert}`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// VIEW: BÚSQUEDA GLOBAL
-// ═══════════════════════════════════════════════════════════════
-function viewBusqueda(){
-  const q=S.searchQ||document.getElementById('search-input')?.value||'';
-  if(!q||q.length<2)return`<div class="empty-box"><div style="font-size:32px;margin-bottom:10px">🔍</div><h4 style="color:#475569;margin-bottom:6px">Búsqueda Global</h4><p style="color:#94A3B8;font-size:13px">Escribe en el campo de búsqueda arriba para encontrar tareas, eventos, decisiones y riesgos en todos los meses.</p></div>`;
-  const ql=q.toLowerCase();
-  const results=[];
-  // Search across all months of current area
-  const adm=aData().months||{};
-  Object.entries(adm).forEach(([k,md])=>{
-    const[yr,mn]=k.split('-').map(Number);
-    const label=`${MONTHS[mn-1]} ${yr}`;
-    (md.tasks||[]).forEach(t=>{if((t.title+' '+(t.description||'')).toLowerCase().includes(ql))results.push({type:'task',label,month:mn,year:yr,item:t});});
-    (md.events||[]).forEach(e=>{if((e.title+' '+(e.notes||'')).toLowerCase().includes(ql))results.push({type:'event',label,month:mn,year:yr,item:e});});
-    (md.decisions||[]).forEach(d=>{if((d.title+' '+(d.context||'')+' '+(d.rationale||'')).toLowerCase().includes(ql))results.push({type:'decision',label,month:mn,year:yr,item:d});});
-    (md.risks||[]).forEach(r=>{if((r.title+' '+(r.description||'')).toLowerCase().includes(ql))results.push({type:'risk',label,month:mn,year:yr,item:r});});
-    (md.kpis||[]).forEach(kp=>{if(kp.name.toLowerCase().includes(ql))results.push({type:'kpi',label,month:mn,year:yr,item:kp});});
-  });
-
-  if(results.length===0)return`<div class="empty-box"><div style="font-size:32px;margin-bottom:10px">🔍</div><h4 style="color:#475569;margin-bottom:6px">Sin resultados para "${escH(q)}"</h4><p style="color:#94A3B8;font-size:13px">Prueba con otros términos</p></div>`;
-
-  const typeLabels={task:'Tarea',event:'Evento',decision:'Decisión',risk:'Riesgo',kpi:'KPI'};
-  const typeColors={task:'#1D4ED8',event:'#065F46',decision:'#9F1239',risk:'#C2410C',kpi:'#6D28D9'};
-  const typeBgs={task:'#DBEAFE',event:'#D1FAE5',decision:'#FFE4E6',risk:'#FFEDD5',kpi:'#EDE9FE'};
-
-  const rows=results.map(r=>{
-    const title=r.item.title||r.item.name||'';
-    const desc=r.item.description||r.item.context||r.item.notes||'';
-    return`<div class="list-row" data-action="jump-to-result" data-type="${r.type}" data-id="${r.item.id}" data-month="${r.month}" data-year="${r.year}">
-      <div style="flex-shrink:0">${badge(typeLabels[r.type],typeColors[r.type],typeBgs[r.type])}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;color:#1E293B">${hl(title,q)}</div>
-        ${desc?`<div style="font-size:11px;color:#64748B;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${hl(desc.slice(0,100),q)}</div>`:''}
-      </div>
-      <span style="font-size:11px;color:#94A3B8;flex-shrink:0">${r.label}</span>
-    </div>`;
-  }).join('');
-
-  return`<div style="margin-bottom:16px"><h3 style="font-size:17px;font-weight:700">Resultados para "${escH(q)}"</h3><p style="font-size:12px;color:#64748B;margin-top:3px">${results.length} resultado${results.length!==1?'s':''} en ${curArea()?.name}</p></div>${rows}`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// VIEW: EQUIPO
-// ═══════════════════════════════════════════════════════════════
-function viewEquipo(){
-  const mems=members();
-  const cards=mems.length===0?`<div class="empty-box" style="grid-column:1/-1"><div style="font-size:32px;margin-bottom:10px">👥</div><h4 style="color:#475569;margin-bottom:6px">Sin integrantes</h4><button class="btn btn-primary btn-sm" data-action="add-member">+ Agregar integrante</button></div>`:
-    mems.map((m,i)=>{
-      const c=MEM_COLS[i%MEM_COLS.length];
-      const ct=(mdata().tasks||[]).filter(t=>t.responsible===m.initial);
-      const done=ct.filter(t=>t.status==='completado').length;
-      return`<div class="card" data-action="edit-member" data-id="${m.id}" style="text-align:center;cursor:pointer;border-top:3px solid ${c};transition:transform .15s" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform=''">
-        <div style="width:52px;height:52px;border-radius:16px;background:${c};margin:0 auto 11px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff">${escH(m.initial)}</div>
-        <div style="font-size:14px;font-weight:700;color:#1E293B">${escH(m.name)}</div>
-        <div style="font-size:12px;color:#64748B;margin-top:3px">${escH(m.role||'')}</div>
-        ${m.email?`<div style="font-size:11px;color:#94A3B8;margin-top:3px">${escH(m.email)}</div>`:''}
-        <div style="margin-top:11px;display:flex;gap:5px;justify-content:center;flex-wrap:wrap">${badge(ct.length+' tarea'+(ct.length!==1?'s':''),'#1A2A42','#EFF6FF')}${ct.length>0?badge(done+' ✓','#059669','#F0FDF4'):''}</div>
-      </div>`;
-    }).join('');
-  return`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px"><h3 style="font-size:17px;font-weight:700">Equipo — ${curArea()?.name}</h3><button class="btn btn-primary btn-sm" data-action="add-member">+ Agregar integrante</button></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px">${cards}</div>`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// MODALS
-// ═══════════════════════════════════════════════════════════════
-function openModal(type,item,extra){S._modal={type,item,extra};buildModal();}
-function closeModal(){S._modal=null;document.getElementById('modal-container').innerHTML='';}
-function getModalStatus(){return document.getElementById('modal-container').getAttribute('data-status')||'pendiente';}
-
-function buildModal(){
-  if(!S._modal){closeModal();return;}
-  const{type,item,extra}=S._modal;
-  let title='',body='';
-
-  if(type==='event'){
-    title=item?'Editar Actividad':'Nueva Actividad'+(extra?.day?' — Día '+extra.day:'');
-    const it=item||{day:extra?.day||'',title:'',category:'hito',responsible:'',notes:''};
-    body=`${fl('Título',fi('f-title',it.title,'Ej: Reunión proveedor, Entrega, Comité...'))}
-    <div class="grid2"><div>${fl('Día',fi('f-day',it.day,'1-31','number'))}</div><div>${fl('Categoría',fs('f-category',catOpts(it.category)))}</div></div>
-    ${fl('Responsable',fs('f-responsible',memberOpts(it.responsible)))}
-    ${fl('Notas',ft('f-notes',it.notes||'','Descripción o contexto adicional...',2))}`;
-    body+=modalFoot(item,'event',item?.id,'save-event');
-  }
-  else if(type==='milestone'){
-    title=item?'Editar Hito':'Nuevo Hito Estratégico';
-    const it=item||{title:'',responsible:'',status:'pendiente',description:''};
-    body=`${fl('Título del Hito',fi('f-title',it.title,'Ej: Lanzamiento, Cierre, Comité...'))}
-    <div class="grid2"><div>${fl('Responsable',fs('f-responsible',memberOpts(it.responsible)))}</div><div>${fl('Estado',fs('f-status',statusOpts(it.status||'pendiente')))}</div></div>
-    ${fl('Descripción',ft('f-description',it.description||'','Descripción breve...',2))}`;
-    body+=modalFoot(item,'milestone',item?.id,'save-milestone');
-  }
-  else if(type==='task'){
-    title=item?'Editar Tarea':'Nueva Tarea';
-    const it=item||{title:'',description:'',category:'coordinacion',status:'pendiente',priority:'media',responsible:'',deadline:''};
-    const pOpts=['alta','media','baja'].map(p=>`<option value="${p}"${it.priority===p?' selected':''}>${PRIO[p].label}</option>`).join('');
-    const stBtns=Object.entries(STATUS).map(([k,v])=>`<button type="button" class="status-toggle-btn" data-status="${k}" style="border-color:${it.status===k?v.color:'#E2E8F0'};background:${it.status===k?v.bg:'#fff'};color:${it.status===k?v.color:'#64748B'}">${v.label}</button>`).join('');
-    body=`${fl('Título',fi('f-title',it.title,'Descripción breve de la tarea'))}
-    <div class="grid2"><div>${fl('Categoría',fs('f-category',catOpts(it.category)))}</div><div>${fl('Prioridad',fs('f-priority',pOpts))}</div></div>
-    <div class="grid2"><div>${fl('Responsable',fs('f-responsible',memberOpts(it.responsible)))}</div><div>${fl('Fecha Límite',fi('f-deadline',it.deadline||'','','date'))}</div></div>
-    <div class="field-group"><label class="field-label">Estado</label><div style="display:flex;gap:6px;flex-wrap:wrap">${stBtns}</div></div>
-    ${fl('Descripción / Notas',ft('f-description',it.description||'','Contexto adicional...',2))}`;
-    body+=modalFoot(item,'task',item?.id,'save-task');
-  }
-  else if(type==='kpi'){
-    title=item?'Editar KPI':'Nuevo KPI';
-    const it=item||{name:'',description:'',current:0,target:0,unit:'',notes:''};
-    body=`${fl('Nombre del Indicador',fi('f-name',it.name,'Ej: Eventos realizados, NPS, Ventas...'))}
-    ${fl('Descripción',fi('f-description',it.description||'','Descripción breve...'))}
-    <div class="grid3"><div>${fl('Valor Actual',fi('f-current',it.current,'0','number'))}</div><div>${fl('Meta',fi('f-target',it.target,'0','number'))}</div><div>${fl('Unidad',fi('f-unit',it.unit||'','%, N°, $...'))}</div></div>
-    ${fl('Notas',ft('f-notes',it.notes||'','Contexto o explicación...',2))}`;
-    body+=modalFoot(item,'kpi',item?.id,'save-kpi');
-  }
-  else if(type==='risk'){
-    title=item?'Editar Riesgo':'Nuevo Riesgo / Alerta';
-    const it=item||{title:'',description:'',impact:'medio',probability:'media',status:'activo',mitigation:'',responsible:''};
-    const iOpts=['bajo','medio','alto','crítico'].map(o=>`<option value="${o}"${it.impact===o?' selected':''}>${o.charAt(0).toUpperCase()+o.slice(1)}</option>`).join('');
-    const pOpts=['baja','media','alta'].map(o=>`<option value="${o}"${it.probability===o?' selected':''}>${o.charAt(0).toUpperCase()+o.slice(1)}</option>`).join('');
-    const sOpts=Object.entries(RISK_ST).map(([k,v])=>`<option value="${k}"${it.status===k?' selected':''}>${v.label}</option>`).join('');
-    body=`${fl('Título del Riesgo',fi('f-title',it.title,'Ej: Retraso proveedor, Riesgo presupuestario...'))}
-    ${fl('Descripción',ft('f-description',it.description||'','Descripción del riesgo...',2))}
-    <div class="grid3"><div>${fl('Impacto',fs('f-impact',iOpts))}</div><div>${fl('Probabilidad',fs('f-probability',pOpts))}</div><div>${fl('Estado',fs('f-status',sOpts))}</div></div>
-    ${fl('Plan de Mitigación',ft('f-mitigation',it.mitigation||'','Acciones para mitigar...',2))}
-    ${fl('Responsable',fs('f-responsible',memberOpts(it.responsible)))}`;
-    body+=modalFoot(item,'risk',item?.id,'save-risk');
-  }
-  else if(type==='decision'){
-    title=item?'Editar Decisión':'Registrar Decisión';
-    const it=item||{title:'',context:'',rationale:'',impact:'',type:'operativa',decidedBy:'',decisionDate:'',followUp:''};
-    const tOpts=Object.entries(DEC_T).map(([k,v])=>`<option value="${k}"${it.type===k?' selected':''}>${v.label}</option>`).join('');
-    body=`<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:10px 13px;margin-bottom:14px;font-size:12px;color:#1E40AF;line-height:1.6">Documenta <b>qué</b> se decidió, <b>por qué</b> y <b>quién</b>. Facilita revisión retroactiva y elimina ambigüedades.</div>
-    ${fl('Decisión tomada',fi('f-title',it.title,'Ej: Contratar proveedor externo para diseño...'))}
-    ${fl('Contexto / Problema que resuelve',ft('f-context',it.context||'','¿Qué situación motivó esta decisión?...',2))}
-    ${fl('Criterio / Por qué esta decisión',ft('f-rationale',it.rationale||'','¿Por qué esta opción y no otra?...',2))}
-    ${fl('Impacto esperado',ft('f-impact',it.impact||'','¿Qué se espera lograr?...',2))}
-    <div class="grid2"><div>${fl('Tipo',fs('f-type',tOpts))}</div><div>${fl('Fecha',fi('f-decision-date',it.decisionDate||'','','date'))}</div></div>
-    ${fl('Quién decidió / autorizó',fs('f-decided-by',memberOpts(it.decidedBy)))}
-    ${fl('Seguimiento / Próximo paso',fi('f-follow-up',it.followUp||'','Ej: Revisar en 30 días...'))}`;
-    body+=modalFoot(item,'decision',item?.id,'save-decision');
-  }
-  else if(type==='member'){
-    title=item?'Editar Integrante':'Nuevo Integrante';
-    const it=item||{name:'',initial:'',role:'',email:''};
-    body=`${fl('Nombre Completo',fi('f-name',it.name,'Nombre y apellido'))}
-    <div class="grid2"><div>${fl('Iniciales (máx 3)',fi('f-initial',it.initial,'ISA, EE...'))}</div><div>${fl('Cargo / Rol',fi('f-role',it.role||'','Coordinadora, Gestora...'))}</div></div>
-    ${fl('Email (opcional)',fi('f-email',it.email||'','nombre@uss.cl','email'))}`;
-    body+=modalFoot(item,'member',item?.id,'save-member');
-  }
-  else if(type==='area'){
-    title=item?'Editar Área':'Nueva Área';
-    const it=item||{name:'',color:'#6D28D9'};
-    const colOpts=AREA_COLS.map(c=>`<option value="${c}"${it.color===c?' selected':''}>${c}</option>`).join('');
-    body=`${fl('Nombre del Área',fi('f-area-name',it.name,'Ej: Extensión, Comunicaciones...'))}
-    <div class="field-group"><label class="field-label">Color</label><div style="display:flex;gap:8px;flex-wrap:wrap">${AREA_COLS.map(c=>`<div data-area-color="${c}" style="width:28px;height:28px;border-radius:50%;background:${c};cursor:pointer;border:3px solid ${it.color===c?'#0F172A':'transparent'}"></div>`).join('')}</div></div>`;
-    body+=`<div class="modal-foot"><span>${item?`<button class="btn btn-danger" data-action="delete-item" data-type="area" data-id="${item.id}">Eliminar área</button>`:''}</span><div style="display:flex;gap:8px"><button class="btn btn-secondary" data-action="close-modal">Cancelar</button><button class="btn btn-primary" data-action="save-area" data-id="${item?.id||''}">Guardar</button></div></div>`;
-  }
-  else if(type==='settings'){
-    const url=S.data.settings?.sheetsUrl||SHEETS_URL;
-    body=`<div style="background:#F0FDF4;border:1px solid #A7F3D0;border-radius:8px;padding:11px 14px;margin-bottom:14px;font-size:12px;color:#065F46;line-height:1.6"><b>Google Sheets como backend:</b> Configura la URL de tu Google Apps Script para sincronizar datos entre personas del equipo. Sin URL, los datos se guardan solo en este navegador.</div>
-    ${fl('URL del Apps Script (Google Sheets)',fi('f-sheets-url',url,'https://script.google.com/macros/s/.../exec'))}
-    <div style="background:#FFFBEB;border-radius:8px;padding:11px 14px;font-size:11px;color:#92400E;line-height:1.7;margin-bottom:14px"><b>Cómo configurar:</b><br>1. Abre el archivo <code>apps_script_backend.js</code> incluido<br>2. Crea un nuevo Google Apps Script en script.google.com<br>3. Pega el código, reemplaza SHEET_ID con el ID de tu Google Sheet<br>4. Despliega como Web App → Ejecutar como: Yo → Acceso: Cualquier usuario<br>5. Copia la URL del despliegue y pégala aquí</div>
-    <div style="border-top:1px solid #F1F5F9;padding-top:14px;margin-bottom:4px">
-      <div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">Zona de restablecimiento</div>
-      <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px">
-        <div>
-          <div style="font-size:13px;font-weight:600;color:#DC2626;margin-bottom:3px">Restablecer datos</div>
-          <div style="font-size:11px;color:#EF4444;line-height:1.5">Borra todos los datos guardados y carga las áreas, integrantes y KPIs base.<br><b>No se puede deshacer.</b></div>
-        </div>
-        <button class="btn" data-action="reset-data" style="background:#DC2626;color:#fff;padding:8px 14px;font-size:12px;font-weight:700;border-radius:8px;white-space:nowrap;flex-shrink:0">Restablecer</button>
-      </div>
-    </div>
-    <div class="modal-foot"><span></span><div style="display:flex;gap:8px"><button class="btn btn-secondary" data-action="close-modal">Cancelar</button><button class="btn btn-primary" data-action="save-settings">Guardar</button></div></div>`;
-    title='Configuración';
-  }
-
-  document.getElementById('modal-container').innerHTML=`<div class="modal-overlay" id="modal-overlay"><div class="modal-box"><div class="modal-head"><h3 style="font-size:15px;font-weight:700;color:#0F172A">${title}</h3><button data-action="close-modal" style="background:none;border:none;font-size:22px;color:#94A3B8;cursor:pointer;line-height:1">×</button></div><div class="modal-body">${body}</div></div></div>`;
-
-  // Task status toggle
-  if(type==='task'){
-    document.getElementById('modal-container').setAttribute('data-status',item?.status||'pendiente');
-    document.querySelectorAll('.status-toggle-btn').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const st=btn.dataset.status;
-        document.getElementById('modal-container').setAttribute('data-status',st);
-        document.querySelectorAll('.status-toggle-btn').forEach(b=>{const v=STATUS[b.dataset.status];const a=b.dataset.status===st;b.style.borderColor=a?v.color:'#E2E8F0';b.style.background=a?v.bg:'#fff';b.style.color=a?v.color:'#64748B';});
-      });
-    });
-  }
-  // Area color picker
-  if(type==='area'){
-    let selCol=item?.color||'#6D28D9';
-    document.querySelectorAll('[data-area-color]').forEach(el=>{
-      el.addEventListener('click',()=>{
-        selCol=el.dataset.areaColor;
-        document.getElementById('modal-container').setAttribute('data-area-color',selCol);
-        document.querySelectorAll('[data-area-color]').forEach(e=>{e.style.borderColor=e.dataset.areaColor===selCol?'#0F172A':'transparent';});
-      });
-    });
-    document.getElementById('modal-container').setAttribute('data-area-color',selCol);
-  }
-}
-
-function modalFoot(item,type,id,saveAction){
-  return`<div class="modal-foot">${item?`<button class="btn btn-danger" data-action="delete-item" data-type="${type}" data-id="${item.id}">Eliminar</button>`:'<span></span>'}<div style="display:flex;gap:8px"><button class="btn btn-secondary" data-action="close-modal">Cancelar</button><button class="btn btn-primary" data-action="${saveAction}" data-id="${id||''}">Guardar</button></div></div>`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// SAVE HANDLERS
-// ═══════════════════════════════════════════════════════════════
-function saveEvent(id){
-  const title=gv('f-title');if(!title)return;
-  const responsible=gv('f-responsible');
-  const category=gv('f-category');
-  const ev={id:id||genId(),title,day:parseInt(gv('f-day'))||1,category:category,responsible:responsible,notes:gv('f-notes')};
-  const md=mdata();if(id){md.events=md.events.map(e=>e.id===id?ev:e);}else md.events=[...md.events,ev];
-
-  // Auto-crear tarea si hay responsable y es evento nuevo
-  if(!id && responsible){
-    var existsTask = (md.tasks||[]).some(function(t){return t.title===title && t.responsible===responsible;});
-    if(!existsTask){
-      var autoTask = {
-        id: genId(),
-        title: title,
-        description: 'Tarea generada automáticamente desde el evento del día '+ev.day,
-        category: category,
-        status: 'pendiente',
-        priority: 'media',
-        responsible: responsible,
-        deadline: gv('f-day') ? S.year+'-'+String(S.month).padStart(2,'0')+'-'+String(parseInt(gv('f-day'))||1).padStart(2,'0') : '',
-        _fromEvent: ev.id
-      };
-      if(!md.tasks) md.tasks=[];
-      md.tasks.push(autoTask);
-    }
-  }
-
-  save();closeModal();renderAll();showToast('Actividad guardada' + (responsible && !id ? ' — tarea creada para '+escH(memberName(responsible)) : ''));
-}
-function saveMilestone(id){
-  const title=gv('f-title');if(!title)return;
-  const ms={id:id||genId(),title,responsible:gv('f-responsible'),status:gv('f-status')||'pendiente',description:gv('f-description')};
-  const md=mdata();if(id){md.milestones=md.milestones.map(m=>m.id===id?ms:m);}else md.milestones=[...md.milestones,ms];
-  save();closeModal();renderAll();showToast('Hito guardado');
-}
-function saveTask(id){
-  const title=gv('f-title');if(!title)return;
-  const status=getModalStatus();
-  const t={id:id||genId(),title,description:gv('f-description'),category:gv('f-category')||'coordinacion',status,priority:gv('f-priority')||'media',responsible:gv('f-responsible'),deadline:gv('f-deadline')};
-  const md=mdata();if(id){md.tasks=md.tasks.map(x=>x.id===id?t:x);}else md.tasks=[...md.tasks,t];
-  save();closeModal();renderAll();showToast('Tarea guardada');
-}
-function saveKpi(id){
-  const name=gv('f-name');if(!name)return;
-  const k={id:id||genId(),name,description:gv('f-description'),current:parseFloat(gv('f-current'))||0,target:parseFloat(gv('f-target'))||0,unit:gv('f-unit'),notes:gv('f-notes')};
-  const md=mdata();if(id){md.kpis=md.kpis.map(x=>x.id===id?k:x);}else md.kpis=[...md.kpis,k];
-  save();closeModal();renderAll();showToast('KPI guardado');
-}
-function saveRisk(id){
-  const title=gv('f-title');if(!title)return;
-  const r={id:id||genId(),title,description:gv('f-description'),impact:gv('f-impact'),probability:gv('f-probability'),status:gv('f-status')||'activo',mitigation:gv('f-mitigation'),responsible:gv('f-responsible')};
-  const md=mdata();if(id){md.risks=md.risks.map(x=>x.id===id?r:x);}else md.risks=[...md.risks,r];
-  save();closeModal();renderAll();showToast('Riesgo guardado');
-}
-function saveDecision(id){
-  const title=gv('f-title');if(!title)return;
-  const d={id:id||genId(),title,context:gv('f-context'),rationale:gv('f-rationale'),impact:gv('f-impact'),type:gv('f-type')||'operativa',decidedBy:gv('f-decided-by'),decisionDate:gv('f-decision-date'),followUp:gv('f-follow-up')};
-  const md=mdata();if(!md.decisions)md.decisions=[];if(id){md.decisions=md.decisions.map(x=>x.id===id?d:x);}else md.decisions=[...md.decisions,d];
-  save();closeModal();renderAll();showToast('Decisión registrada');
-}
-function saveMember(id){
-  const name=gv('f-name');const initial=gv('f-initial');if(!name||!initial)return;
-  const m={id:id||genId(),name,initial:initial.toUpperCase().slice(0,3),role:gv('f-role'),email:gv('f-email')};
-  const ad=aData();if(!ad.teamMembers)ad.teamMembers=[];if(id){ad.teamMembers=ad.teamMembers.map(x=>x.id===id?m:x);}else ad.teamMembers=[...ad.teamMembers,m];
-  save();closeModal();renderAll();showToast('Integrante guardado');
-}
-function saveArea(id){
-  const name=gv('f-area-name');if(!name)return;
-  const color=document.getElementById('modal-container').getAttribute('data-area-color')||'#6D28D9';
-  if(id){S.data.areas=S.data.areas.map(a=>a.id===id?{...a,name,color}:a);}
-  else{const newId='area'+Date.now();S.data.areas=[...S.data.areas,{id:newId,name,color}];if(!S.data.areaData[newId])S.data.areaData[newId]={teamMembers:[],months:{}};}
-  save();closeModal();renderAll();showToast('Área guardada');
-}
-function saveSettings(){
-  const url=gv('f-sheets-url');if(!S.data.settings)S.data.settings={};S.data.settings.sheetsUrl=url;
-  save();closeModal();renderAll();showToast('Configuración guardada');
-}
-function deleteItem(type,id){
-  if(!confirm('¿Eliminar este elemento? Esta acción no se puede deshacer.'))return;
-  const md=mdata();
-  if(type==='event')md.events=md.events.filter(x=>x.id!==id);
-  else if(type==='milestone')md.milestones=md.milestones.filter(x=>x.id!==id);
-  else if(type==='task')md.tasks=md.tasks.filter(x=>x.id!==id);
-  else if(type==='kpi')md.kpis=md.kpis.filter(x=>x.id!==id);
-  else if(type==='risk')md.risks=md.risks.filter(x=>x.id!==id);
-  else if(type==='decision'){if(!md.decisions)md.decisions=[];md.decisions=md.decisions.filter(x=>x.id!==id);}
-  else if(type==='member'){const ad=aData();ad.teamMembers=ad.teamMembers.filter(x=>x.id!==id);}
-  else if(type==='area'){if(S.data.areas.length<=1){alert('Debe quedar al menos un área.');return;}S.data.areas=S.data.areas.filter(a=>a.id!==id);if(S.area===id)S.area=S.data.areas[0].id;}
-  save();closeModal();renderAll();showToast('Eliminado');
-}
-
-// ═══════════════════════════════════════════════════════════════
-// UNIFIED EVENT LISTENER — THE NAVIGATION FIX
-// ═══════════════════════════════════════════════════════════════
-document.addEventListener('click',e=>{
-  // Close modal on overlay click
-  if(e.target.id==='modal-overlay'){closeModal();return;}
-
-  // Find the nearest interactive element
-  const el=e.target.closest('[data-tab],[data-area],[data-action],[data-filter]');
-  if(!el)return;
-
-  // 1. AREA switch — must check before action
-  if(el.dataset.area&&!el.dataset.action){
-    S.area=el.dataset.area;S.tab='hoy';renderAll();return;
-  }
-  // 2. TAB switch
-  if(el.dataset.tab&&!el.dataset.action){
-    S.tab=el.dataset.tab;renderAll();return;
-  }
-  // 3. FILTER (task filters)
-  if(el.dataset.filter&&!el.dataset.action){
-    S.taskFilter=el.dataset.filter;renderAll();return;
-  }
-
-  const action=el.dataset.action;const id=el.dataset.id;
-
-  if(action==='close-modal'){closeModal();return;}
-  if(action==='filter-tasks'){S.taskFilter=el.dataset.filter;renderAll();return;}
-  if(action==='jump-month'){S.month=parseInt(el.dataset.m);S.tab='calendar';renderAll();return;}
-  if(action==='go-area'){S.area=el.dataset.area;S.tab='hoy';renderAll();return;}
-  if(action==='open-settings'){openModal('settings');return;}
-  if(action==='add-area'){openModal('area');return;}
-  if(action==='sync-now'){persistSave();return;}
-
-  if(action==='jump-to-result'){
-    const m=parseInt(el.dataset.month);const y=parseInt(el.dataset.year);
-    S.month=m;S.year=y;
-    const tabMap={task:'tareas',event:'calendar',decision:'decisiones',risk:'riesgos',kpi:'kpis'};
-    S.tab=tabMap[el.dataset.type]||'calendar';
-    renderAll();return;
-  }
-
-  // Calendar actions
-  if(action==='add-event'){openModal('event',null,{day:parseInt(el.dataset.day)});return;}
-  if(action==='edit-event'){const ev=mdata().events.find(e=>e.id===id);if(ev)openModal('event',ev);return;}
-  if(action==='add-milestone'){openModal('milestone');return;}
-  if(action==='edit-milestone'){const ms=mdata().milestones.find(m=>m.id===id);if(ms)openModal('milestone',ms);return;}
-
-  // CRUD opens
-  const crudMap={
-    'add-task':()=>openModal('task'),
-    'edit-task':()=>{const t=mdata().tasks.find(t=>t.id===id);if(t)openModal('task',t);},
-    'add-kpi':()=>openModal('kpi'),
-    'edit-kpi':()=>{const k=mdata().kpis.find(k=>k.id===id);if(k)openModal('kpi',k);},
-    'add-risk':()=>openModal('risk'),
-    'edit-risk':()=>{const r=mdata().risks.find(r=>r.id===id);if(r)openModal('risk',r);},
-    'add-decision':()=>openModal('decision'),
-    'edit-decision':()=>{const md=mdata();if(!md.decisions)md.decisions=[];const d=md.decisions.find(d=>d.id===id);if(d)openModal('decision',d);},
-    'add-member':()=>openModal('member'),
-    'edit-member':()=>{const m=aData().teamMembers.find(m=>m.id===id);if(m)openModal('member',m);},
-    'edit-area':()=>{const a=S.data.areas.find(a=>a.id===id);if(a)openModal('area',a);},
+  const titles = {
+    calendario:'Calendario de Planificacion',
+    tareas:'Gestion de Tareas',
+    kpis:'KPIs Estrategicos 2026-2028',
+    riesgos:'Registro de Riesgos',
+    decisiones:'Registro de Decisiones',
+    direccion:'Vista Direccion',
+    equipo:'Carga del Equipo',
+    configuracion:'Configuracion'
   };
-  if(crudMap[action]){crudMap[action]();return;}
 
-  // Save handlers
-  if(action==='save-event'){saveEvent(id);return;}
-  if(action==='save-milestone'){saveMilestone(id);return;}
-  if(action==='save-task'){saveTask(id);return;}
-  if(action==='save-kpi'){saveKpi(id);return;}
-  if(action==='save-risk'){saveRisk(id);return;}
-  if(action==='save-decision'){saveDecision(id);return;}
-  if(action==='save-member'){saveMember(id);return;}
-  if(action==='save-area'){saveArea(id);return;}
-  if(action==='save-settings'){saveSettings();return;}
-  if(action==='reset-data'){resetData();return;}
-  if(action==='delete-item'){deleteItem(el.dataset.type,id);return;}
-});
-
-// Month navigation
-document.getElementById('prev-month').addEventListener('click',()=>{if(S.month===1){S.month=12;S.year--;}else S.month--;renderAll();});
-document.getElementById('next-month').addEventListener('click',()=>{if(S.month===12){S.month=1;S.year++;}else S.month++;renderAll();});
-
-// Search
-let searchTimer=null;
-document.getElementById('search-input').addEventListener('input',e=>{
-  clearTimeout(searchTimer);
-  searchTimer=setTimeout(()=>{
-    S.searchQ=e.target.value.trim();
-    if(S.searchQ.length>=2){S.tab='busqueda';}
-    renderAll();
-  },300);
-});
-
-// Historial KPI selector
-document.addEventListener('change',e=>{
-  if(e.target.id==='hist-kpi-sel'){S._histKpi=e.target.value;renderMain();}
-});
-
-// ═══════════════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════════════
-// Equipo base CEUSS
-var DEFAULT_MEMBERS = [
-  {name:'Daniela Correa', initial:'DC', role:'Jefa Extension Cultural', email:''},
-  {name:'Elisa',          initial:'EL', role:'Jefa Diseno',             email:''},
-  {name:'Constanza',      initial:'CO', role:'Jefa Ediciones',          email:''},
-  {name:'Jacinto',        initial:'JA', role:'',                        email:''},
-  {name:'Francisca',      initial:'FR', role:'',                        email:''},
-  {name:'Natalia',        initial:'NA', role:'',                        email:''},
-  {name:'Camila',         initial:'CA', role:'',                        email:''},
-  {name:'Ismini',         initial:'IS', role:'',                        email:''},
-];
-
-// KPIs estrategicos CEUSS 2026-2028
-var DEFAULT_KPIS = [
-  {name:'Presencia Publica - Menciones en Medios',
-   description:'Apariciones en medios generadas por CEUSS: columnas, entrevistas, cartas al editor',
-   current:0, target:12, unit:'menciones',
-   notes:'Meta trimestral. Linea base Q1 2026. Minimo 4 por mes.'},
-  {name:'Alcance Presencial - Asistentes a Eventos',
-   description:'Asistentes totales a eventos presenciales masivos del periodo',
-   current:0, target:200, unit:'asistentes',
-   notes:'2 eventos masivos por semestre. Meta minima de asistencia a definir antes de producir.'},
-  {name:'Alcance Digital - YouTube + Boletin',
-   description:'Reproducciones YouTube + aperturas del boletin mensual a colegios, medios y stakeholders',
-   current:0, target:1000, unit:'visualizaciones',
-   notes:'Canal YouTube con calendario fijo. Boletin mensual. Linea base Q1 2026.'},
-  {name:'Eficiencia - Piezas Digitales por Evento',
-   description:'Ratio de piezas de contenido digital generadas por cada charla o actividad grabada',
-   current:0, target:3, unit:'piezas/evento',
-   notes:'Meta minima: 3 piezas por evento grabado. 1 charla = minimo 3 piezas para redes.'},
-  {name:'Capital Relacional - Stakeholders Activos',
-   description:'Stakeholders con vinculo activo documentado + speakers de primer nivel convocados',
-   current:0, target:30, unit:'stakeholders',
-   notes:'Incluye colegios, speakers, medios y autoridades. Linea base Q1 2026.'},
-  {name:'Charlas Grabadas y Publicadas',
-   description:'Charlas con edicion profesional publicadas en YouTube en el periodo',
-   current:0, target:4, unit:'charlas',
-   notes:'Produccion externalizada. Meta: 1 charla publicada cada 2-3 semanas.'},
-  {name:'Colegios con Vinculo Documentado',
-   description:'Colegios con presencia USS activa: LIJ en plan lector, USS a tu colegio, Escuela de Padres',
-   current:0, target:10, unit:'colegios',
-   notes:'Pipeline indirecto para admision. Linea base Q1 2026.'},
-  {name:'Publicaciones Editoriales Distribuidas',
-   description:'Envios curados a medios, colegios, empresas y autoridades en el periodo',
-   current:0, target:4, unit:'envios',
-   notes:'Cada envio abre conversacion. Incluye libros fisicos, digitales y LIJ.'},
-];
-
-var DEFAULT_AREAS = [
-  {id:'ceuss',     name:'CEUSS',               color:'#6D28D9'},
-  {id:'extension', name:'Extension Cultural',   color:'#1D4ED8'},
-  {id:'diseno',    name:'Diseno',               color:'#065F46'},
-  {id:'ediciones', name:'Ediciones',            color:'#9F1239'},
-];
-
-async function init(){
-  await loadData();
-  renderAll();
+  document.getElementById('topbar-title').textContent = titles[id] || 'CEUSS';
+  renderSec(id);
 }
-init();
+
+/* ============================================================
+   DATA
+============================================================ */
+async function loadData() {
+  const cached = localStorage.getItem('ceuss_data');
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      DATA = mergeData(parsed);
+    } catch(e) {}
+  }
+
+  if (SCRIPT_URL) {
+    try {
+      const res = await fetch(SCRIPT_URL + '?action=getData');
+      const json = await res.json();
+      if (json && json.data) {
+        DATA = mergeData(json.data);
+        localStorage.setItem('ceuss_data', JSON.stringify(DATA));
+      }
+    } catch(e) { /* Use local */ }
+  }
+
+  renderSec(SEC);
+}
+
+function mergeData(incoming) {
+  // Name-based area deduplication guard
+  const base = getDefaultData();
+  return {
+    events:    Array.isArray(incoming.events)    ? incoming.events    : base.events,
+    tasks:     Array.isArray(incoming.tasks)     ? incoming.tasks     : base.tasks,
+    kpis:      Array.isArray(incoming.kpis)      ? incoming.kpis      : base.kpis,
+    risks:     Array.isArray(incoming.risks)     ? incoming.risks     : base.risks,
+    decisions: Array.isArray(incoming.decisions) ? incoming.decisions : base.decisions,
+  };
+}
+
+function persist() {
+  localStorage.setItem('ceuss_data', JSON.stringify(DATA));
+  if (SCRIPT_URL) {
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'saveAll', payload: DATA }),
+      headers: { 'Content-Type': 'application/json' }
+    }).catch(() => {});
+  }
+}
+
+/* ============================================================
+   SECTION ROUTER
+============================================================ */
+function renderSec(id) {
+  const c = document.getElementById('content');
+  switch(id) {
+    case 'calendario':    c.innerHTML = secCalendario(); break;
+    case 'tareas':        c.innerHTML = secTareas(); break;
+    case 'kpis':          c.innerHTML = secKPIs(); break;
+    case 'riesgos':       c.innerHTML = secRiesgos(); break;
+    case 'decisiones':    c.innerHTML = secDecisiones(); break;
+    case 'direccion':     c.innerHTML = secDireccion(); break;
+    case 'equipo':        c.innerHTML = secEquipo(); break;
+    case 'configuracion': c.innerHTML = secConfiguracion(); break;
+    default: c.innerHTML = '';
+  }
+}
+
+/* ============================================================
+   AREA TABS HELPER
+============================================================ */
+function visibleAreas() {
+  return CU.isDir ? AREAS : AREAS.filter(a => a.id === CU.id);
+}
+
+function areaTabs(fn) {
+  const areas = visibleAreas();
+  if (areas.length <= 1) return '';
+  return '<div class="area-tabs">' +
+    areas.map(a =>
+      `<button class="atab ${a.id === ACTIVE_TAB ? 'active' : ''}" onclick="${fn}('${a.id}')">${a.name}</button>`
+    ).join('') +
+    '</div>';
+}
+
+/* ============================================================
+   CALENDARIO
+============================================================ */
+function secCalendario() {
+  const y = CAL_DATE.getFullYear();
+  const m = CAL_DATE.getMonth();
+  const today = new Date();
+  const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const DAYS = ['Lun','Mar','Mie','Jue','Vie','Sab','Dom'];
+
+  const areaEvents = DATA.events.filter(e => e.areaId === ACTIVE_TAB);
+  const mEvents = areaEvents.filter(e => {
+    const d = new Date(e.fecha + 'T12:00:00');
+    return d.getFullYear() === y && d.getMonth() === m;
+  });
+
+  const firstDay = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const offset = firstDay === 0 ? 6 : firstDay - 1;
+
+  let cells = DAYS.map(d => `<div class="cal-hdr">${d}</div>`).join('');
+
+  for (let i = 0; i < offset; i++) cells += '<div class="cal-cell empty"></div>';
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const isToday = today.getFullYear() === y && today.getMonth() === m && today.getDate() === d;
+    const dayEvts = mEvents.filter(e => new Date(e.fecha + 'T12:00:00').getDate() === d);
+    const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+    let evtHtml = dayEvts.slice(0,3).map(e =>
+      `<div class="cal-evt cal-evt-${e.areaId}" title="${esc(e.titulo)}">${esc(e.titulo)}</div>`
+    ).join('');
+    if (dayEvts.length > 3) evtHtml += `<div style="font-size:9px;color:var(--gray-400)">+${dayEvts.length-3} mas</div>`;
+
+    cells += `<div class="cal-cell${isToday ? ' today' : ''}" onclick="openEvtModal('${dateStr}')">
+      <div class="cal-num">${d}</div>${evtHtml}
+    </div>`;
+  }
+
+  return `
+    ${areaTabs('setCalTab')}
+    <div class="card">
+      <div class="cal-nav">
+        <button class="btn btn-outline btn-sm" onclick="calMove(-1)">&#9664; Anterior</button>
+        <div class="cal-month-label">${MONTHS[m]} ${y}</div>
+        <button class="btn btn-outline btn-sm" onclick="calMove(1)">Siguiente &#9654;</button>
+      </div>
+      <div class="cal-grid">${cells}</div>
+    </div>
+    <div style="font-size:12px;color:var(--gray-400);margin-top:-12px">Haz clic en un dia para agregar un evento.</div>
+    ${secEventList(mEvents, m, y)}
+  `;
+}
+
+function secEventList(events, m, y) {
+  if (!events.length) return '';
+  const sorted = [...events].sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+  const rows = sorted.map(e => `<tr>
+    <td>${fmtDate(e.fecha)}</td>
+    <td><strong>${esc(e.titulo)}</strong>${e.descripcion ? '<br><span style="font-size:12px;color:var(--gray-400)">'+esc(e.descripcion.substring(0,60))+'</span>' : ''}</td>
+    <td>${esc(e.responsable || '&#8212;')}</td>
+    <td>
+      <button class="btn btn-outline btn-sm" onclick="delEvt('${e.id}')" style="color:var(--red)">&#128465;</button>
+    </td>
+  </tr>`).join('');
+
+  return `<div class="card" style="margin-top:0">
+    <div class="card-title">&#128197; Eventos de este mes</div>
+    <table>
+      <thead><tr><th>Fecha</th><th>Evento</th><th>Responsable</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+function setCalTab(id) { ACTIVE_TAB = id; renderSec('calendario'); }
+function calMove(dir) { CAL_DATE.setMonth(CAL_DATE.getMonth() + dir); renderSec('calendario'); }
+
+function openEvtModal(dateStr) {
+  if (!CU.isDir && ACTIVE_TAB !== CU.id) return;
+  const areaOpts = visibleAreas().map(a =>
+    `<option value="${a.id}" ${a.id === ACTIVE_TAB ? 'selected' : ''}>${a.name}</option>`
+  ).join('');
+  const teamOpts = ['', ...TEAM].map(m =>
+    `<option value="${m}">${m || '-- Sin asignar --'}</option>`
+  ).join('');
+
+  openModal(`
+    <div class="modal-title">&#128197; Nuevo Evento</div>
+    <div class="fg"><label>Titulo del evento</label>
+      <input type="text" id="ev-tit" placeholder="Nombre del evento...">
+    </div>
+    <div class="fg"><label>Fecha</label>
+      <input type="date" id="ev-fecha" value="${dateStr}">
+    </div>
+    <div class="g2">
+      <div class="fg"><label>Area</label><select id="ev-area">${areaOpts}</select></div>
+      <div class="fg"><label>Responsable</label><select id="ev-resp">${teamOpts}</select></div>
+    </div>
+    <div class="fg"><label>Descripcion (opcional)</label>
+      <textarea id="ev-desc" placeholder="Detalles del evento..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEvt()">Guardar evento</button>
+    </div>
+  `);
+}
+
+function saveEvt() {
+  const tit  = document.getElementById('ev-tit').value.trim();
+  const fecha = document.getElementById('ev-fecha').value;
+  const areaId = document.getElementById('ev-area').value;
+  const resp = document.getElementById('ev-resp').value;
+  const desc = document.getElementById('ev-desc').value.trim();
+
+  if (!tit || !fecha) { toast('Completa titulo y fecha', 'err'); return; }
+
+  const ev = { id:'ev_'+Date.now(), titulo:tit, fecha, areaId, responsable:resp, descripcion:desc, creadoPor:CU.name };
+  DATA.events.push(ev);
+
+  if (resp) {
+    DATA.tasks.push({
+      id:'task_'+Date.now(), titulo:'[Evento] '+tit, areaId, responsable:resp,
+      fechaVenc:fecha, estado:'Pendiente', prioridad:'Media',
+      descripcion:'Tarea generada desde evento: '+tit
+    });
+  }
+
+  persist();
+  closeModal();
+  toast('Evento guardado', 'ok');
+  renderSec('calendario');
+}
+
+function delEvt(id) {
+  if (!confirm('Eliminar este evento?')) return;
+  DATA.events = DATA.events.filter(e => e.id !== id);
+  persist();
+  toast('Evento eliminado', 'ok');
+  renderSec('calendario');
+}
+
+/* ============================================================
+   TAREAS
+============================================================ */
+function secTareas() {
+  const tabs = areaTabs('setTareasTab');
+
+  const tasks = DATA.tasks.filter(t =>
+    CU.isDir ? t.areaId === ACTIVE_TAB : t.areaId === CU.id
+  );
+
+  const stats = {
+    total: tasks.length,
+    pend: tasks.filter(t => t.estado === 'Pendiente').length,
+    prog: tasks.filter(t => t.estado === 'En progreso').length,
+    done: tasks.filter(t => t.estado === 'Completada').length,
+  };
+
+  let rows = '';
+  if (!tasks.length) {
+    rows = `<tr><td colspan="7"><div class="empty-state"><div class="es-icon">&#9989;</div><p>Sin tareas registradas.<br>Haz clic en "+ Nueva tarea" para comenzar.</p></div></td></tr>`;
+  } else {
+    [...tasks].sort((a,b)=> {
+      const ord = { 'Pendiente':0, 'En progreso':1, 'Completada':2, 'Cancelada':3 };
+      return (ord[a.estado]||0) - (ord[b.estado]||0);
+    }).forEach(t => {
+      const eBadge = { 'Pendiente':'badge-amber', 'En progreso':'badge-blue', 'Completada':'badge-green', 'Cancelada':'badge-gray' }[t.estado] || 'badge-gray';
+      const pBadge = { 'Alta':'badge-red', 'Media':'badge-amber', 'Baja':'badge-green' }[t.prioridad] || 'badge-gray';
+      const area = AREAS.find(a => a.id === t.areaId);
+      rows += `<tr>
+        <td>
+          <strong>${esc(t.titulo)}</strong>
+          ${t.descripcion ? `<br><span style="font-size:11.5px;color:var(--gray-400)">${esc(t.descripcion.substring(0,55))}${t.descripcion.length>55?'...':''}</span>` : ''}
+        </td>
+        <td>${area ? area.name : t.areaId}</td>
+        <td>${esc(t.responsable||'&#8212;')}</td>
+        <td>${fmtDate(t.fechaVenc)}</td>
+        <td><span class="badge ${eBadge}">${t.estado}</span></td>
+        <td><span class="badge ${pBadge}">${t.prioridad||'Media'}</span></td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-outline btn-sm" onclick="openTareaModal('${t.id}')" title="Editar">&#9998;</button>
+          <button class="btn btn-outline btn-sm" onclick="delTarea('${t.id}')" style="color:var(--red)" title="Eliminar">&#128465;</button>
+        </td>
+      </tr>`;
+    });
+  }
+
+  return `
+    ${tabs}
+    <div class="g4" style="margin-bottom:20px">
+      <div class="stat"><div class="stat-label">Total</div><div class="stat-value">${stats.total}</div></div>
+      <div class="stat"><div class="stat-label">Pendientes</div><div class="stat-value" style="color:var(--amber)">${stats.pend}</div></div>
+      <div class="stat"><div class="stat-label">En progreso</div><div class="stat-value" style="color:var(--blue)">${stats.prog}</div></div>
+      <div class="stat"><div class="stat-label">Completadas</div><div class="stat-value" style="color:var(--green)">${stats.done}</div></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+        <button class="btn btn-primary" onclick="openTareaModal()">+ Nueva tarea</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th>Tarea</th><th>Area</th><th>Responsable</th><th>Vencimiento</th><th>Estado</th><th>Prioridad</th><th></th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function setTareasTab(id) { ACTIVE_TAB = id; renderSec('tareas'); }
+
+function openTareaModal(tid) {
+  const t = tid ? DATA.tasks.find(x => x.id === tid) : null;
+  const areaOpts = visibleAreas().map(a =>
+    `<option value="${a.id}" ${(t ? t.areaId === a.id : a.id === ACTIVE_TAB) ? 'selected' : ''}>${a.name}</option>`
+  ).join('');
+  const teamOpts = ['', ...TEAM].map(m =>
+    `<option value="${m}" ${t && t.responsable === m ? 'selected' : ''}>${m || '-- Sin asignar --'}</option>`
+  ).join('');
+  const estOpts = ['Pendiente','En progreso','Completada','Cancelada'].map(e =>
+    `<option ${(t ? t.estado === e : e === 'Pendiente') ? 'selected' : ''}>${e}</option>`
+  ).join('');
+  const priorOpts = ['Alta','Media','Baja'].map(p =>
+    `<option ${(t ? t.prioridad === p : p === 'Media') ? 'selected' : ''}>${p}</option>`
+  ).join('');
+
+  openModal(`
+    <div class="modal-title">${t ? '&#9998; Editar Tarea' : '&#9989; Nueva Tarea'}</div>
+    <div class="fg"><label>Titulo</label>
+      <input type="text" id="t-tit" value="${t ? esc(t.titulo) : ''}">
+    </div>
+    <div class="fg"><label>Descripcion</label>
+      <textarea id="t-desc">${t ? esc(t.descripcion||'') : ''}</textarea>
+    </div>
+    <div class="g2">
+      <div class="fg"><label>Area</label><select id="t-area">${areaOpts}</select></div>
+      <div class="fg"><label>Responsable</label><select id="t-resp">${teamOpts}</select></div>
+    </div>
+    <div class="g2">
+      <div class="fg"><label>Fecha de vencimiento</label>
+        <input type="date" id="t-fecha" value="${t ? t.fechaVenc||'' : ''}">
+      </div>
+      <div class="fg"><label>Estado</label><select id="t-est">${estOpts}</select></div>
+    </div>
+    <div class="fg"><label>Prioridad</label><select id="t-prior">${priorOpts}</select></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveTarea('${tid||''}')">${t ? 'Actualizar' : 'Guardar'}</button>
+    </div>
+  `);
+}
+
+function saveTarea(tid) {
+  const tit = document.getElementById('t-tit').value.trim();
+  if (!tit) { toast('El titulo es requerido', 'err'); return; }
+
+  const obj = {
+    titulo: tit,
+    descripcion: document.getElementById('t-desc').value.trim(),
+    areaId: document.getElementById('t-area').value,
+    responsable: document.getElementById('t-resp').value,
+    fechaVenc: document.getElementById('t-fecha').value,
+    estado: document.getElementById('t-est').value,
+    prioridad: document.getElementById('t-prior').value
+  };
+
+  if (tid) {
+    const idx = DATA.tasks.findIndex(t => t.id === tid);
+    if (idx >= 0) DATA.tasks[idx] = { ...DATA.tasks[idx], ...obj };
+    toast('Tarea actualizada', 'ok');
+  } else {
+    DATA.tasks.push({ id:'task_'+Date.now(), ...obj });
+    toast('Tarea creada', 'ok');
+  }
+
+  persist();
+  closeModal();
+  renderSec('tareas');
+}
+
+function delTarea(id) {
+  if (!confirm('Eliminar esta tarea?')) return;
+  DATA.tasks = DATA.tasks.filter(t => t.id !== id);
+  persist();
+  toast('Tarea eliminada', 'ok');
+  renderSec('tareas');
+}
+
+/* ============================================================
+   KPIs
+============================================================ */
+function secKPIs() {
+  const kpis = CU.isDir ? DATA.kpis
+    : DATA.kpis.filter(k => k.area === CU.id || k.area === 'ceuss');
+
+  if (!kpis.length) return '<div class="card"><p style="color:var(--gray-400)">Sin KPIs configurados.</p></div>';
+
+  const cards = kpis.map(k => {
+    const pct = Math.min(100, k.meta > 0 ? Math.round((k.actual / k.meta) * 100) : 0);
+    const fillCls = pct >= 100 ? 'green' : pct >= 60 ? '' : 'red';
+    const pctColor = pct >= 60 ? 'var(--green)' : 'var(--red)';
+    const area = AREAS.find(a => a.id === k.area);
+
+    return `<div class="kpi-card">
+      <div class="kpi-label">${esc(k.nombre)}</div>
+      <div class="kpi-sub">${area ? area.name : ''} &middot; ${k.frecuencia}</div>
+      <div class="kpi-nums">
+        <div class="kpi-val">${k.actual}</div>
+        <div class="kpi-meta">/ ${k.meta} ${k.unidad}</div>
+      </div>
+      <div class="pbar" style="margin-bottom:10px">
+        <div class="pbar-fill ${fillCls}" style="width:${pct}%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;font-weight:700;color:${pctColor}">${pct}% alcanzado</span>
+        <button class="btn btn-outline btn-sm" onclick="openKPIModal('${k.id}')">Actualizar</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="g2">${cards}</div>`;
+}
+
+function openKPIModal(id) {
+  const k = DATA.kpis.find(x => x.id === id);
+  if (!k) return;
+  openModal(`
+    <div class="modal-title">&#128202; Actualizar KPI</div>
+    <div class="fg">
+      <label>Nombre del KPI</label>
+      <input type="text" id="kpi-nom" value="${esc(k.nombre)}">
+    </div>
+    <div class="g2">
+      <div class="fg"><label>Valor actual</label>
+        <input type="number" id="kpi-act" value="${k.actual}" min="0">
+      </div>
+      <div class="fg"><label>Meta</label>
+        <input type="number" id="kpi-meta" value="${k.meta}" min="0">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveKPI('${id}')">Guardar</button>
+    </div>
+  `);
+}
+
+function saveKPI(id) {
+  const idx = DATA.kpis.findIndex(k => k.id === id);
+  if (idx < 0) return;
+  const nom = document.getElementById('kpi-nom').value.trim();
+  if (nom) DATA.kpis[idx].nombre = nom;
+  DATA.kpis[idx].actual = parseFloat(document.getElementById('kpi-act').value) || 0;
+  DATA.kpis[idx].meta = parseFloat(document.getElementById('kpi-meta').value) || 0;
+  persist();
+  closeModal();
+  toast('KPI actualizado', 'ok');
+  renderSec('kpis');
+}
+
+/* ============================================================
+   RIESGOS
+============================================================ */
+function secRiesgos() {
+  const tabs = areaTabs('setRiesgosTab');
+  const risks = DATA.risks.filter(r =>
+    CU.isDir ? r.areaId === ACTIVE_TAB : r.areaId === CU.id
+  );
+
+  let rows = '';
+  if (!risks.length) {
+    rows = `<tr><td colspan="6"><div class="empty-state"><div class="es-icon">&#9888;</div><p>Sin riesgos registrados.</p></div></td></tr>`;
+  } else {
+    risks.forEach(r => {
+      const iBadge = { Alto:'badge-red', Medio:'badge-amber', Bajo:'badge-green' }[r.impacto]||'badge-gray';
+      const pBadge = { Alta:'badge-red', Media:'badge-amber', Baja:'badge-green' }[r.probabilidad]||'badge-gray';
+      rows += `<tr>
+        <td><strong>${esc(r.titulo)}</strong></td>
+        <td style="max-width:200px;font-size:12.5px;color:var(--gray-600)">${esc(r.descripcion||'&#8212;')}</td>
+        <td><span class="badge ${iBadge}">${r.impacto}</span></td>
+        <td><span class="badge ${pBadge}">${r.probabilidad}</span></td>
+        <td style="font-size:12.5px;color:var(--gray-600)">${esc(r.mitigacion||'&#8212;')}</td>
+        <td><button class="btn btn-outline btn-sm" onclick="delRiesgo('${r.id}')" style="color:var(--red)">&#128465;</button></td>
+      </tr>`;
+    });
+  }
+
+  return `
+    ${tabs}
+    <div class="card">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+        <button class="btn btn-primary" onclick="openRiesgoModal()">+ Nuevo riesgo</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Riesgo</th><th>Descripcion</th><th>Impacto</th><th>Probabilidad</th><th>Mitigacion</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function setRiesgosTab(id) { ACTIVE_TAB = id; renderSec('riesgos'); }
+
+function openRiesgoModal() {
+  const areaOpts = visibleAreas().map(a =>
+    `<option value="${a.id}" ${a.id === ACTIVE_TAB ? 'selected' : ''}>${a.name}</option>`
+  ).join('');
+
+  openModal(`
+    <div class="modal-title">&#9888; Nuevo Riesgo</div>
+    <div class="fg"><label>Titulo del riesgo</label><input type="text" id="r-tit"></div>
+    <div class="fg"><label>Descripcion</label><textarea id="r-desc"></textarea></div>
+    <div class="g2">
+      <div class="fg"><label>Area</label><select id="r-area">${areaOpts}</select></div>
+      <div class="fg"><label>Impacto</label>
+        <select id="r-imp"><option>Alto</option><option selected>Medio</option><option>Bajo</option></select>
+      </div>
+    </div>
+    <div class="fg"><label>Probabilidad</label>
+      <select id="r-prob"><option>Alta</option><option selected>Media</option><option>Baja</option></select>
+    </div>
+    <div class="fg"><label>Plan de mitigacion</label><textarea id="r-mit"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveRiesgo()">Guardar</button>
+    </div>
+  `);
+}
+
+function saveRiesgo() {
+  const tit = document.getElementById('r-tit').value.trim();
+  if (!tit) { toast('El titulo es requerido', 'err'); return; }
+
+  DATA.risks.push({
+    id:'risk_'+Date.now(), titulo:tit,
+    descripcion: document.getElementById('r-desc').value.trim(),
+    areaId: document.getElementById('r-area').value,
+    impacto: document.getElementById('r-imp').value,
+    probabilidad: document.getElementById('r-prob').value,
+    mitigacion: document.getElementById('r-mit').value.trim()
+  });
+
+  persist();
+  closeModal();
+  toast('Riesgo registrado', 'ok');
+  renderSec('riesgos');
+}
+
+function delRiesgo(id) {
+  if (!confirm('Eliminar este riesgo?')) return;
+  DATA.risks = DATA.risks.filter(r => r.id !== id);
+  persist();
+  toast('Riesgo eliminado', 'ok');
+  renderSec('riesgos');
+}
+
+/* ============================================================
+   DECISIONES
+============================================================ */
+function secDecisiones() {
+  const tabs = areaTabs('setDecisTab');
+  const decs = DATA.decisions.filter(d =>
+    CU.isDir ? d.areaId === ACTIVE_TAB : d.areaId === CU.id
+  ).sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+
+  let rows = '';
+  if (!decs.length) {
+    rows = `<tr><td colspan="5"><div class="empty-state"><div class="es-icon">&#128221;</div><p>Sin decisiones registradas.</p></div></td></tr>`;
+  } else {
+    decs.forEach(d => {
+      rows += `<tr>
+        <td style="white-space:nowrap">${fmtDate(d.fecha)}</td>
+        <td><strong>${esc(d.titulo)}</strong></td>
+        <td style="font-size:12.5px;color:var(--gray-600);max-width:220px">${esc(d.descripcion||'&#8212;')}</td>
+        <td>${esc(d.responsable||'&#8212;')}</td>
+        <td><button class="btn btn-outline btn-sm" onclick="delDecision('${d.id}')" style="color:var(--red)">&#128465;</button></td>
+      </tr>`;
+    });
+  }
+
+  return `
+    ${tabs}
+    <div class="card">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+        <button class="btn btn-primary" onclick="openDecisionModal()">+ Nueva decision</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Fecha</th><th>Decision</th><th>Descripcion</th><th>Responsable</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function setDecisTab(id) { ACTIVE_TAB = id; renderSec('decisiones'); }
+
+function openDecisionModal() {
+  const areaOpts = visibleAreas().map(a =>
+    `<option value="${a.id}" ${a.id === ACTIVE_TAB ? 'selected' : ''}>${a.name}</option>`
+  ).join('');
+  const teamOpts = ['', ...TEAM].map(m =>
+    `<option value="${m}">${m || '-- Sin asignar --'}</option>`
+  ).join('');
+  const today = new Date().toISOString().split('T')[0];
+
+  openModal(`
+    <div class="modal-title">&#128221; Nueva Decision</div>
+    <div class="fg"><label>Titulo / Decision tomada</label><input type="text" id="d-tit"></div>
+    <div class="fg"><label>Descripcion y contexto</label><textarea id="d-desc"></textarea></div>
+    <div class="g2">
+      <div class="fg"><label>Area</label><select id="d-area">${areaOpts}</select></div>
+      <div class="fg"><label>Responsable</label><select id="d-resp">${teamOpts}</select></div>
+    </div>
+    <div class="fg"><label>Fecha</label><input type="date" id="d-fecha" value="${today}"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveDecision()">Guardar</button>
+    </div>
+  `);
+}
+
+function saveDecision() {
+  const tit = document.getElementById('d-tit').value.trim();
+  if (!tit) { toast('El titulo es requerido', 'err'); return; }
+
+  DATA.decisions.push({
+    id:'dec_'+Date.now(), titulo:tit,
+    descripcion: document.getElementById('d-desc').value.trim(),
+    areaId: document.getElementById('d-area').value,
+    responsable: document.getElementById('d-resp').value,
+    fecha: document.getElementById('d-fecha').value
+  });
+
+  persist();
+  closeModal();
+  toast('Decision registrada', 'ok');
+  renderSec('decisiones');
+}
+
+function delDecision(id) {
+  if (!confirm('Eliminar esta decision?')) return;
+  DATA.decisions = DATA.decisions.filter(d => d.id !== id);
+  persist();
+  toast('Decision eliminada', 'ok');
+  renderSec('decisiones');
+}
+
+/* ============================================================
+   VISTA DIRECCION (solo directora)
+============================================================ */
+function secDireccion() {
+  if (!CU.isDir) return '<div class="card"><p style="color:var(--gray-400)">Acceso restringido.</p></div>';
+
+  // Stats
+  const onTrack = DATA.kpis.filter(k => k.meta > 0 && (k.actual/k.meta) >= 0.6).length;
+  const active = DATA.tasks.filter(t => t.estado !== 'Completada' && t.estado !== 'Cancelada').length;
+  const highRisks = DATA.risks.filter(r => r.impacto === 'Alto');
+
+  // Avance tareas por area
+  let taskBars = AREAS.map(a => {
+    const ts = DATA.tasks.filter(t => t.areaId === a.id);
+    const done = ts.filter(t => t.estado === 'Completada').length;
+    const pct = ts.length ? Math.round((done/ts.length)*100) : 0;
+    const fc = pct >= 100 ? 'green' : pct >= 60 ? '' : 'red';
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <span style="font-size:13px;font-weight:500">${a.name}</span>
+        <span style="font-size:12px;color:var(--gray-400)">${done}/${ts.length} completadas</span>
+      </div>
+      <div class="pbar"><div class="pbar-fill ${fc}" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+
+  // Proximos eventos (30 dias)
+  const now = new Date();
+  const in30 = new Date(); in30.setDate(now.getDate()+30);
+  const upcoming = DATA.events
+    .filter(e => { const d = new Date(e.fecha+'T12:00:00'); return d >= now && d <= in30; })
+    .sort((a,b) => new Date(a.fecha) - new Date(b.fecha))
+    .slice(0,8);
+
+  let evtList = upcoming.length === 0
+    ? '<p style="color:var(--gray-400);font-size:13px">Sin eventos en los proximos 30 dias.</p>'
+    : upcoming.map(e => {
+        const d = new Date(e.fecha+'T12:00:00');
+        const area = AREAS.find(a => a.id === e.areaId);
+        return `<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--gray-100)">
+          <div style="min-width:46px;text-align:center;background:var(--gray-100);border-radius:8px;padding:4px 6px;flex-shrink:0">
+            <div style="font-size:9.5px;color:var(--gray-400);font-weight:700">${d.toLocaleString('es',{month:'short'}).toUpperCase()}</div>
+            <div style="font-size:20px;font-weight:700;color:var(--navy);line-height:1.1">${d.getDate()}</div>
+          </div>
+          <div>
+            <div style="font-size:13.5px;font-weight:500">${esc(e.titulo)}</div>
+            <div style="font-size:12px;color:var(--gray-400)">${area ? area.name : ''} ${e.responsable ? '&middot; '+esc(e.responsable) : ''}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+  // Carga equipo
+  let workRows = TEAM.map(m => {
+    const cnt = DATA.tasks.filter(t => t.responsable === m && t.estado !== 'Completada').length;
+    const pct = Math.min(100, cnt * 10);
+    const fc = cnt > 7 ? 'red' : cnt > 4 ? '' : 'green';
+    return `<div class="wrow">
+      <div class="wrow-name">${m}</div>
+      <div class="wrow-bar">
+        <div class="pbar"><div class="pbar-fill ${fc}" style="width:${pct}%"></div></div>
+      </div>
+      <div class="wrow-count">${cnt} tareas</div>
+    </div>`;
+  }).join('');
+
+  // Riesgos alto impacto
+  let riskList = highRisks.length === 0
+    ? '<p style="color:var(--green);font-size:13.5px">&#10003; Sin riesgos de alto impacto registrados</p>'
+    : highRisks.map(r => {
+        const area = AREAS.find(a => a.id === r.areaId);
+        return `<div style="padding:9px 0;border-bottom:1px solid var(--gray-100)">
+          <span class="badge badge-red" style="margin-right:8px">Alto impacto</span>
+          <strong style="font-size:13px">${esc(r.titulo)}</strong>
+          <span style="font-size:12px;color:var(--gray-400);margin-left:6px">${area ? area.name : ''}</span>
+          ${r.mitigacion ? `<div style="font-size:11.5px;color:var(--gray-400);margin-top:3px">Mitigacion: ${esc(r.mitigacion.substring(0,80))}</div>` : ''}
+        </div>`;
+      }).join('');
+
+  // KPI resumen
+  let kpiRows = DATA.kpis.map(k => {
+    const pct = Math.min(100, k.meta > 0 ? Math.round((k.actual/k.meta)*100) : 0);
+    const fc = pct >= 100 ? 'green' : pct >= 60 ? '' : 'red';
+    return `<div style="padding:10px 0;border-bottom:1px solid var(--gray-100)">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <span style="font-size:12.5px;font-weight:500">${esc(k.nombre)}</span>
+        <span style="font-size:13px;font-weight:700;color:${pct>=60?'var(--green)':'var(--red)'}">${pct}%</span>
+      </div>
+      <div class="pbar"><div class="pbar-fill ${fc}" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+
+  return `
+    <!-- Stats rapidos -->
+    <div class="g4" style="margin-bottom:20px">
+      <div class="stat"><div class="stat-label">KPIs en marcha</div><div class="stat-value" style="color:var(--green)">${onTrack}/${DATA.kpis.length}</div></div>
+      <div class="stat"><div class="stat-label">Tareas activas</div><div class="stat-value">${active}</div></div>
+      <div class="stat"><div class="stat-label">Riesgos registrados</div><div class="stat-value" style="color:${highRisks.length>0?'var(--red)':'var(--green)'}">${DATA.risks.length}</div></div>
+      <div class="stat"><div class="stat-label">Decisiones</div><div class="stat-value">${DATA.decisions.length}</div></div>
+    </div>
+
+    <div class="dir-grid">
+      <div class="card">
+        <div class="card-title">&#9989; Avance de tareas por area</div>
+        ${taskBars || '<p style="color:var(--gray-400);font-size:13px">Sin tareas registradas.</p>'}
+      </div>
+      <div class="card">
+        <div class="card-title">&#128101; Carga del equipo</div>
+        ${workRows}
+      </div>
+    </div>
+
+    <div class="dir-grid">
+      <div class="card">
+        <div class="card-title">&#128197; Proximos eventos (30 dias)</div>
+        ${evtList}
+      </div>
+      <div class="card">
+        <div class="card-title">&#9888; Riesgos de alto impacto</div>
+        ${riskList}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">&#128202; Estado de KPIs Estrategicos</div>
+      <div class="g2">${kpiRows}</div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   EQUIPO (solo directora)
+============================================================ */
+function secEquipo() {
+  if (!CU.isDir) return '<div class="card"><p style="color:var(--gray-400)">Acceso restringido.</p></div>';
+
+  let workCards = TEAM.map(m => {
+    const all = DATA.tasks.filter(t => t.responsable === m);
+    const pend = all.filter(t => t.estado==='Pendiente').length;
+    const prog = all.filter(t => t.estado==='En progreso').length;
+    const done = all.filter(t => t.estado==='Completada').length;
+    const pct = all.length ? Math.round((done/all.length)*100) : 0;
+    const fc = pct >= 100 ? 'green' : (pend+prog) > 7 ? 'red' : '';
+
+    return `<div class="wrow">
+      <div class="wrow-name">${m}</div>
+      <div class="wrow-bar">
+        <div class="pbar"><div class="pbar-fill ${fc}" style="width:${pct}%"></div></div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:3px">${pend} pendientes &middot; ${prog} en progreso &middot; ${done} completadas</div>
+      </div>
+      <div class="wrow-count">${all.length}</div>
+    </div>`;
+  }).join('');
+
+  const active = DATA.tasks.filter(t => t.estado !== 'Completada' && t.estado !== 'Cancelada');
+  let rows = active.length === 0
+    ? `<tr><td colspan="5"><div class="empty-state"><div class="es-icon">&#127881;</div><p>Todo al dia! Sin tareas activas.</p></div></td></tr>`
+    : active.sort((a,b) => {
+        const ord = { Alta:0, Media:1, Baja:2 };
+        return (ord[a.prioridad]||1) - (ord[b.prioridad]||1);
+      }).map(t => {
+        const area = AREAS.find(a => a.id === t.areaId);
+        const eBadge = { 'Pendiente':'badge-amber', 'En progreso':'badge-blue' }[t.estado]||'badge-gray';
+        return `<tr>
+          <td>${esc(t.titulo)}</td>
+          <td>${area ? area.name : t.areaId}</td>
+          <td>${esc(t.responsable||'&#8212;')}</td>
+          <td>${fmtDate(t.fechaVenc)}</td>
+          <td><span class="badge ${eBadge}">${t.estado}</span></td>
+        </tr>`;
+      }).join('');
+
+  return `
+    <div class="card">
+      <div class="card-title">&#128101; Carga de trabajo por persona</div>
+      ${workCards}
+    </div>
+    <div class="card">
+      <div class="card-title">&#128203; Tareas activas del equipo</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Tarea</th><th>Area</th><th>Responsable</th><th>Vencimiento</th><th>Estado</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   CONFIGURACION
+============================================================ */
+function secConfiguracion() {
+  const codes = getCodes();
+  const url = localStorage.getItem('ceuss_script_url') || '';
+
+  let codesSection = '';
+  if (CU.isDir) {
+    codesSection = `
+      <div class="card">
+        <div class="card-title">&#128273; Codigos de Acceso</div>
+        <p style="font-size:13px;color:var(--gray-600);margin-bottom:18px">
+          Solo tu (directora) puedes ver y modificar estos codigos.
+          Compartelos de forma privada con cada integrante del equipo.
+        </p>
+        <div class="g2">
+          <div class="fg"><label>CEUSS (Directora)</label>
+            <input type="text" id="c-ceuss" value="${codes.ceuss}">
+          </div>
+          <div class="fg"><label>Extension Cultural (Daniela)</label>
+            <input type="text" id="c-cultural" value="${codes.cultural}">
+          </div>
+          <div class="fg"><label>Diseno (Elisa)</label>
+            <input type="text" id="c-diseno" value="${codes.diseno}">
+          </div>
+          <div class="fg"><label>Ediciones (Constanza)</label>
+            <input type="text" id="c-ediciones" value="${codes.ediciones}">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="guardarCodigos()">Guardar codigos</button>
+      </div>
+    `;
+  }
+
+  return `
+    ${codesSection}
+
+    <div class="card">
+      <div class="card-title">&#128279; Conexion con Google Sheets</div>
+      <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px">
+        Ingresa la URL de tu Google Apps Script para sincronizar datos en la nube.
+        Si lo dejas vacio, los datos se guardan solo en este navegador.
+      </p>
+      <div class="fg">
+        <label>URL del Apps Script</label>
+        <input type="text" id="sc-url" value="${esc(url)}" placeholder="https://script.google.com/macros/s/...">
+      </div>
+      <button class="btn btn-primary" onclick="guardarURL()">Guardar URL</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">&#128260; Restablecer datos</div>
+      <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px">
+        Si ves datos duplicados, errores en la visualizacion o informacion desactualizada,
+        usa este boton. Limpiara el cache local y recargara los datos desde Google Sheets.
+      </p>
+      <button class="btn btn-danger" onclick="restablecerDatos()">&#128260; Restablecer y recargar</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">&#8505; Informacion del sistema</div>
+      <p style="font-size:13px;color:var(--gray-600);line-height:1.9">
+        <strong>Planificador CEUSS</strong> &mdash; Plan Estrategico 2026&ndash;2028<br>
+        Universidad San Sebastian &mdash; Centro de Extension<br>
+        Usuario: <strong>${CU.name}</strong> &middot; Area: <strong>${CU.areaName}</strong><br>
+        Sheet ID: <code style="font-size:11px;background:var(--gray-100);padding:2px 7px;border-radius:5px">${SHEET_ID}</code>
+      </p>
+    </div>
+  `;
+}
+
+function guardarCodigos() {
+  const codes = {
+    ceuss:     document.getElementById('c-ceuss').value.trim(),
+    cultural:  document.getElementById('c-cultural').value.trim(),
+    diseno:    document.getElementById('c-diseno').value.trim(),
+    ediciones: document.getElementById('c-ediciones').value.trim()
+  };
+  if (Object.values(codes).some(c => !c)) { toast('Todos los campos son obligatorios', 'err'); return; }
+  saveCodes(codes);
+  toast('Codigos actualizados correctamente', 'ok');
+}
+
+function guardarURL() {
+  const url = document.getElementById('sc-url').value.trim();
+  localStorage.setItem('ceuss_script_url', url);
+  SCRIPT_URL = url;
+  toast('URL guardada. Sincronizando...', 'ok');
+  setTimeout(loadData, 800);
+}
+
+function restablecerDatos() {
+  if (!confirm('Esto borrara el cache local y recargara desde Google Sheets.\n\nSi no tienes Google Sheets configurado, los datos quedaran en blanco.\n\nContinuar?')) return;
+  localStorage.removeItem('ceuss_data');
+  DATA = getDefaultData();
+  toast('Cache limpiado. Recargando...', 'ok');
+  setTimeout(loadData, 600);
+}
+
+/* ============================================================
+   MODAL
+============================================================ */
+function openModal(html) {
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+document.getElementById('overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+/* ============================================================
+   TOAST
+============================================================ */
+let _toastTimer;
+function toast(msg, type = 'ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { el.className = ''; }, 3200);
+}
+
+/* ============================================================
+   UTILS
+============================================================ */
+function fmtDate(s) {
+  if (!s) return '&mdash;';
+  try {
+    const d = new Date(s + 'T12:00:00');
+    return d.toLocaleDateString('es-CL', { day:'2-digit', month:'short', year:'numeric' });
+  } catch(e) { return s; }
+}
+
+function esc(s) {
+  if (!s && s !== 0) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
 </body>
 </html>
