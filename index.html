@@ -939,14 +939,13 @@ async function loadData() {
 }
 
 function mergeData(incoming) {
-  // Name-based area deduplication guard
   const base = getDefaultData();
   return {
-    events:    Array.isArray(incoming.events)    ? incoming.events    : base.events,
-    tasks:     Array.isArray(incoming.tasks)     ? incoming.tasks     : base.tasks,
-    kpis:      Array.isArray(incoming.kpis)      ? incoming.kpis      : base.kpis,
-    risks:     Array.isArray(incoming.risks)     ? incoming.risks     : base.risks,
-    decisions: Array.isArray(incoming.decisions) ? incoming.decisions : base.decisions,
+    events:    Array.isArray(incoming.events)                         ? incoming.events    : base.events,
+    tasks:     Array.isArray(incoming.tasks)                          ? incoming.tasks     : base.tasks,
+    kpis:      Array.isArray(incoming.kpis) && incoming.kpis.length   ? incoming.kpis      : base.kpis,
+    risks:     Array.isArray(incoming.risks)                          ? incoming.risks     : base.risks,
+    decisions: Array.isArray(incoming.decisions)                      ? incoming.decisions : base.decisions,
   };
 }
 
@@ -1295,7 +1294,7 @@ function secKPIs() {
   const kpis = CU.isDir ? DATA.kpis
     : DATA.kpis.filter(k => k.area === CU.id || k.area === 'ceuss');
 
-  if (!kpis.length) return '<div class="card"><p style="color:var(--gray-400)">Sin KPIs configurados.</p></div>';
+  const emptyState = `<div class="empty-state"><div class="es-icon">&#128202;</div><p>Sin KPIs configurados.<br>Haz clic en "+ Nuevo KPI" para comenzar.</p></div>`;
 
   const cards = kpis.map(k => {
     const pct = Math.min(100, k.meta > 0 ? Math.round((k.actual / k.meta) * 100) : 0);
@@ -1304,8 +1303,14 @@ function secKPIs() {
     const area = AREAS.find(a => a.id === k.area);
 
     return `<div class="kpi-card">
-      <div class="kpi-label">${esc(k.nombre)}</div>
-      <div class="kpi-sub">${area ? area.name : ''} &middot; ${k.frecuencia}</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px">
+        <div class="kpi-label" style="flex:1">${esc(k.nombre)}</div>
+        <div style="display:flex;gap:4px;flex-shrink:0;margin-left:8px">
+          <button class="btn btn-outline btn-sm" onclick="openKPIModal('${k.id}')" title="Editar">&#9998;</button>
+          <button class="btn btn-outline btn-sm" onclick="delKPI('${k.id}')" title="Eliminar" style="color:var(--red)">&#128465;</button>
+        </div>
+      </div>
+      <div class="kpi-sub">${area ? area.name : ''} &middot; ${k.frecuencia} &middot; <em>${k.unidad}</em></div>
       <div class="kpi-nums">
         <div class="kpi-val">${k.actual}</div>
         <div class="kpi-meta">/ ${k.meta} ${k.unidad}</div>
@@ -1315,48 +1320,88 @@ function secKPIs() {
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:13px;font-weight:700;color:${pctColor}">${pct}% alcanzado</span>
-        <button class="btn btn-outline btn-sm" onclick="openKPIModal('${k.id}')">Actualizar</button>
       </div>
     </div>`;
   }).join('');
 
-  return `<div class="g2">${cards}</div>`;
+  return `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+      <button class="btn btn-primary" onclick="openKPIModal()">+ Nuevo KPI</button>
+    </div>
+    ${kpis.length ? `<div class="g2">${cards}</div>` : `<div class="card">${emptyState}</div>`}
+  `;
 }
 
 function openKPIModal(id) {
-  const k = DATA.kpis.find(x => x.id === id);
-  if (!k) return;
+  const k = id ? DATA.kpis.find(x => x.id === id) : null;
+  const areaOpts = AREAS.map(a =>
+    `<option value="${a.id}" ${(k ? k.area === a.id : a.id === (CU.isDir ? 'ceuss' : CU.id)) ? 'selected' : ''}>${a.name}</option>`
+  ).join('');
+  const frecOpts = ['Mensual','Semestral','Anual'].map(f =>
+    `<option ${(k ? k.frecuencia === f : f === 'Anual') ? 'selected' : ''}>${f}</option>`
+  ).join('');
+
   openModal(`
-    <div class="modal-title">&#128202; Actualizar KPI</div>
+    <div class="modal-title">${k ? '&#9998; Editar KPI' : '&#128202; Nuevo KPI'}</div>
     <div class="fg">
       <label>Nombre del KPI</label>
-      <input type="text" id="kpi-nom" value="${esc(k.nombre)}">
+      <input type="text" id="kpi-nom" value="${k ? esc(k.nombre) : ''}" placeholder="Ej: Actividades realizadas">
+    </div>
+    <div class="g2">
+      <div class="fg"><label>Area</label><select id="kpi-area">${areaOpts}</select></div>
+      <div class="fg"><label>Frecuencia de medicion</label><select id="kpi-frec">${frecOpts}</select></div>
     </div>
     <div class="g2">
       <div class="fg"><label>Valor actual</label>
-        <input type="number" id="kpi-act" value="${k.actual}" min="0">
+        <input type="number" id="kpi-act" value="${k ? k.actual : 0}" min="0">
       </div>
       <div class="fg"><label>Meta</label>
-        <input type="number" id="kpi-meta" value="${k.meta}" min="0">
+        <input type="number" id="kpi-meta" value="${k ? k.meta : 0}" min="0">
       </div>
+    </div>
+    <div class="fg">
+      <label>Unidad de medida</label>
+      <input type="text" id="kpi-unidad" value="${k ? esc(k.unidad) : ''}" placeholder="Ej: actividades, personas, %, publicaciones">
     </div>
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveKPI('${id}')">Guardar</button>
+      <button class="btn btn-primary" onclick="saveKPI('${id||''}')">${k ? 'Actualizar' : 'Guardar KPI'}</button>
     </div>
   `);
 }
 
 function saveKPI(id) {
-  const idx = DATA.kpis.findIndex(k => k.id === id);
-  if (idx < 0) return;
   const nom = document.getElementById('kpi-nom').value.trim();
-  if (nom) DATA.kpis[idx].nombre = nom;
-  DATA.kpis[idx].actual = parseFloat(document.getElementById('kpi-act').value) || 0;
-  DATA.kpis[idx].meta = parseFloat(document.getElementById('kpi-meta').value) || 0;
+  if (!nom) { toast('El nombre es requerido', 'err'); return; }
+
+  const obj = {
+    nombre:      nom,
+    area:        document.getElementById('kpi-area').value,
+    frecuencia:  document.getElementById('kpi-frec').value,
+    actual:      parseFloat(document.getElementById('kpi-act').value) || 0,
+    meta:        parseFloat(document.getElementById('kpi-meta').value) || 0,
+    unidad:      document.getElementById('kpi-unidad').value.trim() || 'unidades',
+  };
+
+  if (id) {
+    const idx = DATA.kpis.findIndex(k => k.id === id);
+    if (idx >= 0) DATA.kpis[idx] = { ...DATA.kpis[idx], ...obj };
+    toast('KPI actualizado', 'ok');
+  } else {
+    DATA.kpis.push({ id: 'k_' + Date.now(), ...obj });
+    toast('KPI creado', 'ok');
+  }
+
   persist();
   closeModal();
-  toast('KPI actualizado', 'ok');
+  renderSec('kpis');
+}
+
+function delKPI(id) {
+  if (!confirm('Eliminar este KPI?')) return;
+  DATA.kpis = DATA.kpis.filter(k => k.id !== id);
+  persist();
+  toast('KPI eliminado', 'ok');
   renderSec('kpis');
 }
 
@@ -1816,72 +1861,4 @@ function guardarCodigos() {
     ceuss:     document.getElementById('c-ceuss').value.trim(),
     cultural:  document.getElementById('c-cultural').value.trim(),
     diseno:    document.getElementById('c-diseno').value.trim(),
-    ediciones: document.getElementById('c-ediciones').value.trim()
-  };
-  if (Object.values(codes).some(c => !c)) { toast('Todos los campos son obligatorios', 'err'); return; }
-  saveCodes(codes);
-  toast('Codigos actualizados correctamente', 'ok');
-}
-
-function guardarURL() {
-  const url = document.getElementById('sc-url').value.trim();
-  localStorage.setItem('ceuss_script_url', url);
-  SCRIPT_URL = url;
-  toast('URL guardada. Sincronizando...', 'ok');
-  setTimeout(loadData, 800);
-}
-
-function restablecerDatos() {
-  if (!confirm('Esto borrara el cache local y recargara desde Google Sheets.\n\nSi no tienes Google Sheets configurado, los datos quedaran en blanco.\n\nContinuar?')) return;
-  localStorage.removeItem('ceuss_data');
-  DATA = getDefaultData();
-  toast('Cache limpiado. Recargando...', 'ok');
-  setTimeout(loadData, 600);
-}
-
-/* ============================================================
-   MODAL
-============================================================ */
-function openModal(html) {
-  document.getElementById('modal-body').innerHTML = html;
-  document.getElementById('overlay').classList.add('open');
-}
-
-function closeModal() {
-  document.getElementById('overlay').classList.remove('open');
-}
-
-document.getElementById('overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
-/* ============================================================
-   TOAST
-============================================================ */
-let _toastTimer;
-function toast(msg, type = 'ok') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = `show ${type}`;
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => { el.className = ''; }, 3200);
-}
-
-/* ============================================================
-   UTILS
-============================================================ */
-function fmtDate(s) {
-  if (!s) return '&mdash;';
-  try {
-    const d = new Date(s + 'T12:00:00');
-    return d.toLocaleDateString('es-CL', { day:'2-digit', month:'short', year:'numeric' });
-  } catch(e) { return s; }
-}
-
-function esc(s) {
-  if (!s && s !== 0) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-</script>
-</body>
-</html>
+    edic
