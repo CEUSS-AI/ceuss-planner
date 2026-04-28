@@ -1861,4 +1861,72 @@ function guardarCodigos() {
     ceuss:     document.getElementById('c-ceuss').value.trim(),
     cultural:  document.getElementById('c-cultural').value.trim(),
     diseno:    document.getElementById('c-diseno').value.trim(),
-    edic
+    ediciones: document.getElementById('c-ediciones').value.trim()
+  };
+  if (Object.values(codes).some(c => !c)) { toast('Todos los campos son obligatorios', 'err'); return; }
+  saveCodes(codes);
+  toast('Codigos actualizados correctamente', 'ok');
+}
+
+function guardarURL() {
+  const url = document.getElementById('sc-url').value.trim();
+  localStorage.setItem('ceuss_script_url', url);
+  SCRIPT_URL = url;
+  toast('URL guardada. Sincronizando...', 'ok');
+  setTimeout(loadData, 800);
+}
+
+function restablecerDatos() {
+  if (!confirm('Esto borrara el cache local y recargara desde Google Sheets.\n\nSi no tienes Google Sheets configurado, los datos quedaran en blanco.\n\nContinuar?')) return;
+  localStorage.removeItem('ceuss_data');
+  DATA = getDefaultData();
+  toast('Cache limpiado. Recargando...', 'ok');
+  setTimeout(loadData, 600);
+}
+
+/* ============================================================
+   MODAL
+============================================================ */
+function openModal(html) {
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+document.getElementById('overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+/* ============================================================
+   TOAST
+============================================================ */
+let _toastTimer;
+function toast(msg, type = 'ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { el.className = ''; }, 3200);
+}
+
+/* ============================================================
+   UTILS
+============================================================ */
+function fmtDate(s) {
+  if (!s) return '&mdash;';
+  try {
+    const d = new Date(s + 'T12:00:00');
+    return d.toLocaleDateString('es-CL', { day:'2-digit', month:'short', year:'numeric' });
+  } catch(e) { return s; }
+}
+
+function esc(s) {
+  if (!s && s !== 0) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
